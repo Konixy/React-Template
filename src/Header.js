@@ -13,7 +13,6 @@ export default () => {
 
     const [isDarkMode, setIsDarkMode] = useState(true)
 
-
     if(isDarkMode) {
         setTimeout(() => {
             toggleDarkMode()
@@ -71,7 +70,7 @@ export default () => {
             </a>
             </div>
             <div className='darkModeToggler ml-4'>
-                <button onClick={toggleDarkMode}><i className='fa-solid fa-moon text-black dark:text-white darkModeTogglerIcon text-lg'></i></button>
+                <button onClick={setIsDarkMode}><i className='fa-solid fa-moon text-black dark:text-white darkModeTogglerIcon text-lg'></i></button>
             </div>
         </div>
     </nav>
