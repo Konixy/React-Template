@@ -5,7 +5,75 @@
 
 
 body {
-    font: 14px Poppins, Futura, sans-serif;
-    margin: none;
-    padding: none;
+    font-family: Poppins, Futura, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    transition: background-color 0.15s ease-in-out,
+    color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out;
+}
+
+.nav-link {
+    transition: 0.05s ease-in-out;
+}
+
+.nav-brand {
+    font-size: x-large;
+    font-weight: 600;
+}
+
+.discordBtn {
+    background-color: #5562ea;
+}
+
+.discordBtn:hover {
+    background-color: #4652cc;
+}
+
+.discordBtn .discordIcon {
+   margin-right: 10px;
+   font-size: 20px;
+   transform: translateY(2px)
+}
+
+.gradientText {
+    background: linear-gradient(45deg, #09009f, #00ff95 80%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.gradient {
+    background: linear-gradient(45deg, #0b00e0, #00ff95 35%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.gradient .btn {
+    background: linear-gradient(45deg, #0b00e0, #00ff95 100%);
+    background-clip: border-box !important;
+    color: white;
+    -webkit-text-fill-color: white;
+    padding: 5px 15px;
+    border-radius: 10px;
+}
+
+html.dark body {
+    background-color: #0f172a;
+}
+
+html.dark nav {
+    background-color: #0f172a;
+}
+
+.darkModeTogglerIcon {
+    transition: 0.05s ease-in-out;
+}
+
+.darkModeTogglerIcon:hover {
+    transform: scale(1.2);
 }

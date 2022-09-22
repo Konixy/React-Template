@@ -1,28 +1,21 @@
 import React, { Component } from 'react'
+const discordLink = "https://discord.gg/a2CmhsvEvM"
 
 export default () => {
-
     const [state, setState] = React.useState(false)
 
     const navigation = [
-        { title: "Customers", path: "javascript:void(0)" },
-        { title: "Careers", path: "javascript:void(0)" },
-        { title: "Guides", path: "javascript:void(0)" },
-        { title: "Partners", path: "javascript:void(0)" }
+        { title: "Commencer", path: "javascript:void(0)" },
+        { title: "A propos", path: "javascript:void(0)" },
+        { title: "Aide", path: "javascript:void(0)" },
+        { title: "Support", path: discordLink, targetBlank: true }
     ]
 
     return (
-        <nav className="bg-white w-full border-b md:border-0 md:static">
+        <nav className="bg-white dark:bg-dark w-full border-b md:border-0 md:static">
         <div className="items-center px-4 max-w-screen-xl mx-auto md:flex md:px-8">
             <div className="flex items-center justify-between py-3 md:py-5 md:block">
-                <a href="javascript:void(0)">
-                    <img
-                        src="https://www.floatui.com/logo.svg"
-                        width={120} 
-                        height={50}
-                        alt="Float UI logo"
-                    />
-                </a>
+                <a href="/" className='nav-brand dark:text-white'>SpotiCord</a>
                 <div className="md:hidden">
                     <button className="text-gray-700 outline-none p-2 rounded-md focus:border-gray-400 focus:border"
                         onClick={() => setState(!state)}
@@ -46,8 +39,8 @@ export default () => {
                     {
                         navigation.map((item, idx) => {
                             return (
-                            <li key={idx} className="text-gray-600 hover:text-indigo-600">
-                                <a href={item.path}>
+                            <li key={idx} className="text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 hover:text-indigo-600 nav-link">
+                                <a href={item.path} target={item.targetBlank ? '_blank' : "_self"}>
                                     { item.title }
                                 </a>
                             </li>
@@ -57,11 +50,21 @@ export default () => {
                 </ul>
             </div>
             <div className="hidden md:inline-block">
-            <a href="javascript:void(0)" className="py-3 px-4 text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow">
-                Get Started
+            <a href="javascript:void(0)" className="py-3 px-4 text-white rounded-md shadow discordBtn">
+                <i className='fa-brands fa-discord discordIcon'></i>
+                Se connecter
             </a>
+            </div>
+            <div className='darkModeToggler ml-4'>
+                <button onClick={toggleDarkMode}><i className='fa-solid fa-moon text-black dark:text-white darkModeTogglerIcon text-lg'></i></button>
             </div>
         </div>
     </nav>
     )
+}
+
+function toggleDarkMode() {
+    document.querySelector('html').classList.toggle('dark');
+    document.querySelector('.darkModeTogglerIcon').classList.toggle('fa-moon')
+    document.querySelector('.darkModeTogglerIcon').classList.toggle('fa-brightness')
 }

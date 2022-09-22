@@ -3,13 +3,15 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import Player from "./Player";
 import Header from "./Header";
+import Home from "./Home"
 
 class App extends React.Component {
   render() {
     return (
       <>
         <header><Header /></header>
-        <div className="player"><Player /></div>
+        <main><Home /></main>
+        {/* <div className="player"><Player /></div> */}
       </>
     )
   }
