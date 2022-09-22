@@ -3,12 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-    --gradient80: linear-gradient(45deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1) 80%);
-    --gradient35: linear-gradient(45deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1) 35%);
-    --gradient100: linear-gradient(45deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1) 100%);
-    --darkColor: #121212;
-}
+
+$gradient80: linear-gradient(45deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1) 80%);
+$gradient35: linear-gradient(45deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1) 35%);
+$gradient100: linear-gradient(45deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1) 100%);
+$darkColor: #121212;
 
 body {
     font-family: Poppins, Futura, sans-serif;
@@ -52,14 +51,14 @@ body {
 }
 
 .gradientText {
-    background: var(--gradient80);
+    background: $gradient80;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     margin: 0;
 }
 
 .gradient {
-    background: var(--gradient35);
+    background: $gradient35;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     margin: 0;
@@ -67,10 +66,10 @@ body {
 
 .gradient .btn {
     position: relative;
-    background: var(--gradient100);
+    background: $gradient100;
     background-clip: border-box !important;
-    color: var(--darkColor);
-    -webkit-text-fill-color: var(--darkColor);
+    color: $darkColor;
+    -webkit-text-fill-color: $darkColor;
     padding: 5px 15px;
     border-radius: 10px;
     transition: opacity 0.2s;
@@ -85,7 +84,7 @@ body {
     right: 0;
     bottom: 0;
     left: 0;
-    background: var(--gradient100);
+    background: $gradient100;
     filter: blur(10px);
     opacity: var(0.7);
     transition: opacity 0.3s;
@@ -109,37 +108,12 @@ body {
     opacity: 75%;
 }
 
-/* .gradient .btn:hover:after {
-	content: "";
-	position: absolute;
-	top: -2px;
-	left: -2px;
-	background: var(--gradient-animate);
-	background-size: 400%;
-	width: calc(100% + 4px);
-	height: calc(100% + 4px);
-	z-index: -1;
-    animation: gradient 4s ease infinite;
-}
-
-.gradient .btn:hover:after {
-	filter: blur(20px);
-} */
-
-@keyframes gradient {
-    0%{background-position:0% 50%}
-    25%{background-position:100% 50%}
-    50%{background-position:0% 50%}
-    75%{background-position:100% 50%}
-    100%{background-position:0% 50%}
-}
-
 html.dark body {
-    background-color: var(--darkColor);
+    background-color: $darkColor;
 }
 
 html.dark nav {
-    background-color: var(--darkColor);
+    background-color: $darkColor;
 }
 
 .darkModeTogglerIcon {
