@@ -77,3 +77,15 @@ html.dark nav {
 .darkModeTogglerIcon:hover {
     transform: scale(1.2);
 }
+
+@media (prefers-color-scheme: dark) {
+    html {
+        background-color: black;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    html {
+        background-color: white;
+    }
+}
