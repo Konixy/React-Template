@@ -4,10 +4,10 @@
 @tailwind utilities;
 
 :root {
-    --gradient80: linear-gradient(90deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1)  80%);
-    --gradient35: linear-gradient(90deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1)  35%);
-    --gradient100: linear-gradient(90deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1)  100%);
-    --darkColor: #111827;
+    --gradient80: linear-gradient(45deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1) 80%);
+    --gradient35: linear-gradient(45deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1) 35%);
+    --gradient100: linear-gradient(45deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1) 100%);
+    --darkColor: #121212;
 }
 
 body {
@@ -66,12 +66,72 @@ body {
 }
 
 .gradient .btn {
+    position: relative;
     background: var(--gradient100);
     background-clip: border-box !important;
     color: var(--darkColor);
     -webkit-text-fill-color: var(--darkColor);
     padding: 5px 15px;
     border-radius: 10px;
+    transition: opacity 0.2s;
+}
+
+
+.gradient .btn::before {
+    content: "";
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: var(--gradient100);
+    filter: blur(10px);
+    opacity: var(0.7);
+    transition: opacity 0.3s;
+    border-radius: inherit;
+    opacity: 0%;
+}
+
+.gradient .btn::after {
+    content: "";
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: inherit;
+    border-radius: inherit;
+}
+
+.gradient .btn:hover:before {
+    opacity: 75%;
+}
+
+/* .gradient .btn:hover:after {
+	content: "";
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	background: var(--gradient-animate);
+	background-size: 400%;
+	width: calc(100% + 4px);
+	height: calc(100% + 4px);
+	z-index: -1;
+    animation: gradient 4s ease infinite;
+}
+
+.gradient .btn:hover:after {
+	filter: blur(20px);
+} */
+
+@keyframes gradient {
+    0%{background-position:0% 50%}
+    25%{background-position:100% 50%}
+    50%{background-position:0% 50%}
+    75%{background-position:100% 50%}
+    100%{background-position:0% 50%}
 }
 
 html.dark body {
