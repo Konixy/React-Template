@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
+import React, { Component, useState, useEffect } from 'react'
 const discordLink = "https://discord.gg/a2CmhsvEvM"
 
 export default () => {
-    const [state, setState] = React.useState(false)
+    const [state, setState] = useState(false)
 
     const navigation = [
         { title: "Commencer", path: "javascript:void(0)" },
@@ -11,15 +11,27 @@ export default () => {
         { title: "Support", path: discordLink, targetBlank: true }
     ]
 
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    const useThemeDetector = () => {
+        const getCurrentTheme = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const [isDarkTheme, setIsDarkTheme] = useState(getCurrentTheme());  
+        const mqListener = (e => {
+            setIsDarkTheme(e.matches);
+        });
+        
+        useEffect(() => {
+          const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
+          darkThemeMq.addEventListener("change", mqListener);
+          return () => darkThemeMq.removeEventListener("change", mqListener);
+        }, []);
+        return isDarkTheme;
+    }
+
+    if(useThemeDetector()) {
         setTimeout(() => {
             toggleDarkMode()
         }, 50)
     }
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-        toggleDarkMode()
-    });
+    console.log(useThemeDetector())
 
     function toggleDarkMode() {
         document.querySelector('html').classList.toggle('dark');
