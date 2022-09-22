@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 export default class Player extends Component {
   render() {
     return (
-      <div>Player</div>
+      <div className='text-black dark:text-white'>Player</div>
     )
   }
 }
