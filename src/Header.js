@@ -11,6 +11,22 @@ export default () => {
         { title: "Support", path: discordLink, targetBlank: true }
     ]
 
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setTimeout(() => {
+            toggleDarkMode()
+        }, 50)
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        toggleDarkMode()
+    });
+
+    function toggleDarkMode() {
+        document.querySelector('html').classList.toggle('dark');
+        document.querySelector('.darkModeTogglerIcon').classList.toggle('fa-moon')
+        document.querySelector('.darkModeTogglerIcon').classList.toggle('fa-brightness')
+    }
+
     return (
         <nav className="bg-white dark:bg-dark w-full border-b md:border-0 md:static">
         <div className="items-center px-4 max-w-screen-xl mx-auto md:flex md:px-8">
@@ -61,10 +77,4 @@ export default () => {
         </div>
     </nav>
     )
-}
-
-function toggleDarkMode() {
-    document.querySelector('html').classList.toggle('dark');
-    document.querySelector('.darkModeTogglerIcon').classList.toggle('fa-moon')
-    document.querySelector('.darkModeTogglerIcon').classList.toggle('fa-brightness')
 }
