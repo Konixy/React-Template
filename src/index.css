@@ -4,9 +4,10 @@
 @tailwind utilities;
 
 :root {
-    --gradient80: linear-gradient(45deg, #09009f, #00ff95 80%);
-    --gradient35: linear-gradient(45deg, #09009f, #00ff95 35%);
-    --gradient100: linear-gradient(45deg, #09009f, #00ff95 100%);
+    --gradient80: linear-gradient(90deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1)  80%);
+    --gradient35: linear-gradient(90deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1)  35%);
+    --gradient100: linear-gradient(90deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1)  100%);
+    --darkColor: #111827;
 }
 
 body {
@@ -61,18 +62,18 @@ body {
 .gradient .btn {
     background: var(--gradient100);
     background-clip: border-box !important;
-    color: white;
-    -webkit-text-fill-color: white;
+    color: var(--darkColor);
+    -webkit-text-fill-color: var(--darkColor);
     padding: 5px 15px;
     border-radius: 10px;
 }
 
 html.dark body {
-    background-color: #111827;
+    background-color: var(--darkColor);
 }
 
 html.dark nav {
-    background-color: #111827;
+    background-color: var(--darkColor);
 }
 
 .darkModeTogglerIcon {
