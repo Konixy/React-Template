@@ -1,13 +1,14 @@
 import React, { Component, useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 const discordLink = "https://discord.gg/a2CmhsvEvM"
 
 export default () => {
     const [state, setState] = useState(false)
 
     const navigation = [
-        { title: "Commencer", path: "javascript:void(0)" },
-        { title: "A propos", path: "javascript:void(0)" },
-        { title: "Aide", path: "javascript:void(0)" },
+        { title: "Commencer", path: "get-started" },
+        { title: "A propos", path: "about" },
+        { title: "Aide", path: "help" },
         { title: "Support", path: discordLink, targetBlank: true }
     ]
 
@@ -29,7 +30,7 @@ export default () => {
         <nav className="bg-white dark:bg-dark w-full border-b md:border-0 md:static">
         <div className="items-center px-4 max-w-screen-xl mx-auto md:flex md:px-8">
             <div className="flex items-center justify-between py-3 md:py-5 md:block">
-                <a href="/" className='nav-brand dark:text-white'>SpotiCord</a>
+                <Link to="/" className='nav-brand dark:text-white'>SpotiCord</Link>
                 <div className="md:hidden">
                     <button className="text-gray-700 outline-none p-2 rounded-md focus:border-gray-400 focus:border"
                         onClick={() => setState(!state)}
@@ -54,9 +55,18 @@ export default () => {
                         navigation.map((item, idx) => {
                             return (
                             <li key={idx} className="text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 hover:text-indigo-600 nav-link">
-                                <a href={item.path} target={item.targetBlank ? '_blank' : "_self"}>
-                                    { item.title }
-                                </a>
+                                {(() => {
+                                    if(item.targetBlank) {
+                                        return (
+                                            <a href={item.path} target="_blank">{ item.title }</a>
+                                        )
+                                    } else {
+                                        return (
+                                            <Link to={item.path}>{ item.title }</Link>
+                                        )
+                                    }
+                                })()}
+                                {/* {item.title} */}
                             </li>
                             )
                         })

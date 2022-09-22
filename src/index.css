@@ -63,11 +63,11 @@ body {
 }
 
 html.dark body {
-    background-color: #061420;
+    background-color: #111827;
 }
 
 html.dark nav {
-    background-color: #061420;
+    background-color: #111827;
 }
 
 .darkModeTogglerIcon {
