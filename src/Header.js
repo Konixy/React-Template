@@ -5,7 +5,7 @@ export default () => {
     const [state, setState] = React.useState(false)
 
     const navigation = [
-        { title: "Customers", path: "/test" },
+        { title: "Customers", path: "javascript:void(0)" },
         { title: "Careers", path: "javascript:void(0)" },
         { title: "Guides", path: "javascript:void(0)" },
         { title: "Partners", path: "javascript:void(0)" }
