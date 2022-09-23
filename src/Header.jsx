@@ -1,7 +1,7 @@
 import React, { Component, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 const discordLink = "https://discord.gg/a2CmhsvEvM"
-import LoggedInfo from './LoggedInfo'
+import LoggedBtn from './LoggedBtn'
 
 export default () => {
     const navigation = [
@@ -54,7 +54,7 @@ export default () => {
                         })
                     }
           </ul>
-                    <LoggedInfo />
+                    <LoggedBtn />
             <div className='darkModeToggler ml-4'>
                 <button onClick={setIsDarkMode}><i className='fa-solid fa-moon text-black dark:text-white darkModeTogglerIcon text-lg'></i></button>
             </div>

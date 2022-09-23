@@ -42,5 +42,15 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script>
+      document.querySelectorAll('a[target="_new"]').forEach(e => {
+        e.addEventListener('click', () => {
+          console.log('clicked')
+          var width = window.innerWidth * 0.66 ;
+          var height = width * window.innerHeight / window.innerWidth ;
+          window.open(this.href , 'newwindow', 'width=' + width + ', height=' + height + ', top=' + ((window.innerHeight - height) / 2) + ', left=' + ((window.innerWidth - width) / 2));
+        });
+      })
+    </script>
   </body>
 </html>
