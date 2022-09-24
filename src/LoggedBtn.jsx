@@ -75,7 +75,7 @@ export default () => {
       : 
         <button onClick={login} className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" style={{height: '32px', justifyContent: "center"}}>
           {/* target="_blank" href={`${config.backendPath}/api/login`} rel="noopener noreferrer" */}
-          <i className='fa-brands fa-discord discordIcon'></i>
+          <i className='fa-brands fa-discord discordIcon text-black'></i>
           Se connecter
         </button>
       }
@@ -91,9 +91,9 @@ function Dropdown([user, setUser]) {
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
-        <Menu.Button className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-          Options
-          <i className="fa-solid fa-caret-down -mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+        <Menu.Button className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white dark:bg-transparent dark:text-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-black">
+          {user.name}
+          <i className="fa-solid fa-caret-down -mr-2 ml-1 mt-0 flex h-5 w-5 text-gray-700 dark:text-white drop-icon text-base" aria-hidden="true" />
         </Menu.Button>
       </div>
 
@@ -106,14 +106,14 @@ function Dropdown([user, setUser]) {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-neutral-800 shadow-lg ring-1 ring-black dark:ring-neutral-600 ring-opacity-5 focus:outline-none">
           <div className="py-1">
             <Menu.Item>
               {({ active }) => (
                 <a
                   href="#"
                   className={classNames(
-                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    active ? 'bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300',
                     'block px-4 py-2 text-sm'
                   )}
                 >
@@ -126,7 +126,7 @@ function Dropdown([user, setUser]) {
                 <a
                   href="#"
                   className={classNames(
-                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    active ? 'bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300',
                     'block px-4 py-2 text-sm'
                   )}
                 >
@@ -139,7 +139,7 @@ function Dropdown([user, setUser]) {
                 <a
                   href="#"
                   className={classNames(
-                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    active ? 'bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300',
                     'block px-4 py-2 text-sm'
                   )}
                 >
@@ -153,8 +153,8 @@ function Dropdown([user, setUser]) {
                   <button
                     type="submit"
                     className={classNames(
-                      active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                      'block w-full px-4 py-2 text-left text-sm text-red-600'
+                      active ? 'bg-gray-100 text-red-600 dark:bg-neutral-700' : 'text-red-600',
+                      'block w-full px-4 py-2 text-left text-sm'
                     )}
                     onClick={logout}
                   >

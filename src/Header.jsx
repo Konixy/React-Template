@@ -27,7 +27,7 @@ export default () => {
 
     return (
          
-        <nav className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+        <nav className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center bg-white">
           <Link to="/" className="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
             <img src="https://cdn.worldvectorlogo.com/logos/spotify-2.svg" alt="SpotiCord" width="30px" height="30px" className='mr-1' />
             <span className='nav-brand dark:text-white'>SpotiCord</span>
@@ -48,7 +48,6 @@ export default () => {
                                         )
                                     }
                                 })()}
-                                {/* {item.title} */}
                             </li>
                             )
                         })

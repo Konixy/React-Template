@@ -127,3 +127,14 @@ html.dark nav {
 .dropdown {
     position: absolute;
 }
+
+.semiblack {
+    background-color: $darkColor;
+}
+
+.drop-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -1px;
+}
