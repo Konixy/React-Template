@@ -1,8 +1,14 @@
-import React, { Component, useState, useEffect } from 'react'
+import React, { Component, useState, useEffect, Fragment } from 'react'
 import axios from 'axios'
 import config from './config'
 import {TailSpin} from 'react-loader-spinner'
 import { Link } from 'react-router-dom'
+import { Menu, Transition } from '@headlessui/react'
+// import Dropdown from './Dropdown'
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ')
+}
 
 export default () => {
   const [user, setUser] = useState({type: 'loader'});
@@ -53,17 +59,18 @@ export default () => {
           //   {user.name}
           // </button>)
           <div className='drop-container'>
-          <button className="drop-btn text-black dark:text-white flex flex-row items-center" onClick={displayDrop}>
-          {user.avatar ? <img
+           {/* <button className="drop-btn text-black dark:text-white flex flex-row items-center" onClick={displayDrop}> */}
+           {/* user.avatar ? <img
             src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png"
             className="avatar rounded-3"/> : <img
             src="https://cdn2.clc2l.fr/t/d/i/discord-4OXyS2.png"
-      className="avatar" width="25px" height="25px" /> } { user.name }
-        </button>
-          <ul className="dropdown" style={{display: "none"}}>
+      className="avatar" width="25px" height="25px" /> */} {/* user.name */}
+        {/* </button>
+          <ul className="dropdown" style={{display: "none"}}> */}
           {/* <Link className="drop" to="/panel" style={{color: "#9c9fa9"}}>Mes serveurs</Link> */}
-          <li><button className="drop" onClick={logout} style={{color: "#912734"}}>Se déconnecter</button></li>
-        </ul>
+          {/* <li><button className="drop" onClick={logout} style={{color: "#912734"}}>Se déconnecter</button></li>
+        </ul> */}
+        {Dropdown([user, setUser])}
         </div>)
       : 
         <button onClick={login} className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" style={{height: '32px', justifyContent: "center"}}>
@@ -73,5 +80,92 @@ export default () => {
         </button>
       }
     </>
+  )
+}
+
+function Dropdown([user, setUser]) {
+  function logout() {
+    axios.post(`${config.backendPath}/api/logout`)
+    return setUser(null)
+  }
+  return (
+    <Menu as="div" className="relative inline-block text-left">
+      <div>
+        <Menu.Button className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
+          Options
+          <i className="fa-solid fa-caret-down -mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+        </Menu.Button>
+      </div>
+
+      <Transition
+        as={Fragment}
+        enter="transition ease-out duration-100"
+        enterFrom="transform opacity-0 scale-95"
+        enterTo="transform opacity-100 scale-100"
+        leave="transition ease-in duration-75"
+        leaveFrom="transform opacity-100 scale-100"
+        leaveTo="transform opacity-0 scale-95"
+      >
+        <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <div className="py-1">
+            <Menu.Item>
+              {({ active }) => (
+                <a
+                  href="#"
+                  className={classNames(
+                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    'block px-4 py-2 text-sm'
+                  )}
+                >
+                  Account settings
+                </a>
+              )}
+            </Menu.Item>
+            <Menu.Item>
+              {({ active }) => (
+                <a
+                  href="#"
+                  className={classNames(
+                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    'block px-4 py-2 text-sm'
+                  )}
+                >
+                  Support
+                </a>
+              )}
+            </Menu.Item>
+            <Menu.Item>
+              {({ active }) => (
+                <a
+                  href="#"
+                  className={classNames(
+                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    'block px-4 py-2 text-sm'
+                  )}
+                >
+                  License
+                </a>
+              )}
+            </Menu.Item>
+            <div>
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    type="submit"
+                    className={classNames(
+                      active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                      'block w-full px-4 py-2 text-left text-sm text-red-600'
+                    )}
+                    onClick={logout}
+                  >
+                    Se déconnecter
+                  </button>
+                )}
+              </Menu.Item>
+            </div>
+          </div>
+        </Menu.Items>
+      </Transition>
+    </Menu>
   )
 }
