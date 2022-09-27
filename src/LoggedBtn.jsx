@@ -5,7 +5,7 @@ import {TailSpin} from 'react-loader-spinner'
 import { Link } from 'react-router-dom'
 import { Menu, Transition } from '@headlessui/react'
 import Cookies from 'js-cookie'
-import { CookieProvider, withCookies } from 'react-cookie'
+import { CookieProvider, withCookies } from 'react-cookie' 
 // import Dropdown from './Dropdown'
 
 function classNames(...classes) {
