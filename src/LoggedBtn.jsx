@@ -14,6 +14,7 @@ export default () => {
   const [user, setUser] = useState({type: 'loader'});
 
   async function getInfo() {
+    console.log(document.cookie)
     await axios.get(`${config.backendPath}/api/info`)
     .then(r => {
       setUser(r.data.user);

@@ -11,12 +11,17 @@ import Player from "./Player";
 import Header from "./Header";
 import Home from "./Home"
 import NotFound from "./NotFound";
+import Cookie from "js-cookie"
 
 class App extends React.Component {
+  constructor() {
+    super()
+    this.connectUid = Cookie.get('connect.uid')
+  }
   render() {
     return (
       <Router>
-        <header><Header /></header>
+        <header><Header cookies={this.connectUid} /></header>
         <main>
           <Routes>
             <Route exact path="/" element={<Home />} />
