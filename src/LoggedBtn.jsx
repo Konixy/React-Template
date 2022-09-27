@@ -4,83 +4,85 @@ import config from './config'
 import {TailSpin} from 'react-loader-spinner'
 import { Link } from 'react-router-dom'
 import { Menu, Transition } from '@headlessui/react'
+import Cookies from 'js-cookie'
+import { CookieProvider, withCookies } from 'react-cookie'
 // import Dropdown from './Dropdown'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default () => {
-  const [user, setUser] = useState({type: 'loader'});
+export default class LoggedBtn extends Component {
+  state = {
+    cookie: this.props.cookies.get('user') || null
+  };
+  render() {
+    const [user, setUser] = useState({type: 'loader'});
 
-  async function getInfo() {
-    await axios.get(`${config.backendPath}/api/info`)
-    .then(r => {
-      setUser(r.data.user);
-    })
-  }
+    
 
-  function login() {
-    setUser({type: 'loader'})
-    const width = window.innerWidth * 0.35 ;
-    const height = (width * window.innerHeight / window.innerWidth) * 2;
-    const loginWindow = window.open(`${config.backendPath}/api/login` , 'newwindow', 'width=' + width + ', height=' + height + ', top=' + ((window.innerHeight - height) / 2) + ', left=' + ((window.innerWidth - width) / 2));
-    const timer = setInterval(() => {
-      if(loginWindow.closed) {
-        getInfo();
-        clearInterval(timer)
-      }
-    }, 1000)
-  }
-  
-  function logout() {
-    axios.post(`${config.backendPath}/api/logout`)
-    return setUser(null)
-  }
+    async function getInfo() {
+      const cookie = "connect.sid=s%3AH3srpjztXqhv334ieP9jbBzuTD4c9Fa2.YyGBYpWibbAem076Je47VT0TY9xp24c9vcP1nkPqVdk"
+      const request = fetch(`${config.backendPath}/api/info`, {headers: {"Set-Cookie": cookie}})
+      .then(r => r.json())
+      .then(data => {console.log(data); setUser(data.user)})
+      // const request = axios.get(`${config.backendPath}/api/info`)
+      // request.then(r => {
+      //   setUser(r.data.user);
+      //   console.log(request.headers)
+      // })
+    }
 
-  function displayDrop() {
-    const style = document.querySelector(".dropdown").style
-    style.display = style.display === "none" ? "block" : "none"
-  }
+    function login() {
+      setUser({type: 'loader'})
+      // window.location.href = `${config.backendPath}/api/login`;
+      const width = window.innerWidth * 0.35;
+      const height = window.innerHeight * 0.90;
+      const loginWindow = window.open(`${config.backendPath}/api/login` , 'newwindow', 'width=' + width + ', height=' + height + ', top=' + (window.innerHeight - height) + ', left=' + (window.innerWidth - width) / 2);
+      const timer = setInterval(() => {
+        if(loginWindow.closed) {
+          getInfo();
+          clearInterval(timer)
+        }
+      }, 1000)
+    }
+    
+    function logout() {
+      axios.post(`${config.backendPath}/api/logout`)
+      return setUser(null)
+    }
 
-  useEffect(() => {
-    getInfo()
-  }, [])
+    function displayDrop() {
+      const style = document.querySelector(".dropdown").style
+      style.display = style.display === "none" ? "block" : "none"
+    }
 
-  return (
-    <>
-      {
-      user ?
-      (user.type === 'loader' ? 
-      <button className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" style={{width: "75px", height: "32px", justifyContent: "center"}}>
-        <TailSpin color='black' width='20px' height="20px" />
-      </button> :
-          // <button className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" style={{height: '32px', justifyContent: "center"}}>
-          //   {user.name}
-          // </button>)
+    useEffect(() => {
+      getInfo()
+    }, [])
+
+    return (
+      <>
+        {
+        user ?
+        (user.type === 'loader' ? 
+        <button className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" style={{width: "75px", height: "32px", justifyContent: "center"}}>
+          <TailSpin color='black' width='20px' height="20px" />
+        </button> :
           <div className='drop-container'>
-           {/* <button className="drop-btn text-black dark:text-white flex flex-row items-center" onClick={displayDrop}> */}
-           {/* user.avatar ? <img
-            src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png"
-            className="avatar rounded-3"/> : <img
-            src="https://cdn2.clc2l.fr/t/d/i/discord-4OXyS2.png"
-      className="avatar" width="25px" height="25px" /> */} {/* user.name */}
-        {/* </button>
-          <ul className="dropdown" style={{display: "none"}}> */}
-          {/* <Link className="drop" to="/panel" style={{color: "#9c9fa9"}}>Mes serveurs</Link> */}
-          {/* <li><button className="drop" onClick={logout} style={{color: "#912734"}}>Se déconnecter</button></li>
-        </ul> */}
-        {Dropdown([user, setUser])}
-        </div>)
-      : 
-        <button onClick={login} className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" style={{height: '32px', justifyContent: "center"}}>
-          {/* target="_blank" href={`${config.backendPath}/api/login`} rel="noopener noreferrer" */}
-          <i className='fa-brands fa-discord discordIcon text-black'></i>
-          Se connecter
-        </button>
-      }
-    </>
-  )
+            {Dropdown([user, setUser])}
+          </div>)
+        : 
+          <button onClick={login} className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" style={{height: '32px', justifyContent: "center"}}>
+            {/* target="_blank" href={`${config.backendPath}/api/login`} rel="noopener noreferrer" */}
+            <i className='fa-brands fa-discord discordIcon text-black'></i>
+            Se connecter
+          </button>
+        }
+      </>
+    )
+  }
+
 }
 
 function Dropdown([user, setUser]) {
