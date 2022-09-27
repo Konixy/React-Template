@@ -19,24 +19,13 @@ export default class LoggedBtn extends Component {
   render() {
     const [user, setUser] = useState({type: 'loader'});
 
-  async function getInfo() {
-    console.log(document.cookie)
-    await axios.get(`${config.backendPath}/api/info`)
-    .then(r => {
-      setUser(r.data.user);
-    })
-  }
-
     async function getInfo() {
       const cookie = "connect.sid=s%3AH3srpjztXqhv334ieP9jbBzuTD4c9Fa2.YyGBYpWibbAem076Je47VT0TY9xp24c9vcP1nkPqVdk"
-      const request = fetch(`${config.backendPath}/api/info`, {headers: {"Set-Cookie": cookie}})
-      .then(r => r.json())
-      .then(data => {console.log(data); setUser(data.user)})
-      // const request = axios.get(`${config.backendPath}/api/info`)
-      // request.then(r => {
-      //   setUser(r.data.user);
-      //   console.log(request.headers)
-      // })
+      console.log(document.cookie)
+      await axios.get(`${config.backendPath}/api/info`)
+      .then(r => {
+        setUser(r.data.user);
+      })
     }
 
     function login() {
@@ -100,7 +89,7 @@ function Dropdown([user, setUser]) {
     <Menu as="div" className="relative inline-block text-left">
       <div>
         <Menu.Button className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white dark:bg-transparent dark:text-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-black">
-          {user.name}
+          {user.name}#{user.tag}
           <i className="fa-solid fa-caret-down -mr-2 ml-1 mt-0 flex h-5 w-5 text-gray-700 dark:text-white drop-icon text-base" aria-hidden="true" />
         </Menu.Button>
       </div>
