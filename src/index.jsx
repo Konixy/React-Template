@@ -3,8 +3,7 @@ import ReactDOM from "react-dom/client";
 import {
   BrowserRouter as Router,
   Routes,
-  Route,
-  Link
+  Route
 } from "react-router-dom";
 import "./index.scss";
 import Player from "./Player";
@@ -19,6 +18,8 @@ class App extends React.Component {
     this.connectUid = Cookie.get('connect.uid')
   }
   render() {
+    // const { cookie } = this.state
+    // console.log(cookie)
     return (
       <Router>
         <header><Header cookies={this.connectUid} /></header>
