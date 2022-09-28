@@ -139,16 +139,13 @@ html.dark nav {
     margin-top: -1px;
 }
 
-.progressBar::-webkit-slider-thumb {
-    background-color: green !important;
+#progressBar::-webkit-slider-thumb:hover {
+    background-color: green;
 }
-// input[type=”range”]::-moz-range-thumb {}
-// input[type=”range”]::-ms-thumb {
-//     background-color: --tw-green-500 !important;
-// }
 
-input[type="range" i]::-webkit-slider-runnable-track
-// , input[type=”range”]::-moz-range-track, input[type=”range”]::-ms-track 
-{
-    background-color: --tw-green-500 !important;
-}
+// input[type=”range”]::-webkit-slider-thumb
+// input[type=”range”]::-moz-range-thumb
+// input[type=”range”]::-ms-thumb 
+// input[type=”range”]::-webkit-slider-runnable-track
+// input[type=”range”]::-moz-range-track
+// input[type=”range”]::-ms-track 

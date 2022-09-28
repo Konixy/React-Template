@@ -1,6 +1,38 @@
-import React, { Component, useEffect } from "react";
+import React, { Component, useEffect, useState } from "react";
+import moment from "moment";
+import { IntervalTimer } from "./Util";
 
 export default class Player extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: 34, // this.props.seek
+      duration: 3 * 60 + 20, // this.props.server.currentTrack.duration
+      paused: false
+    };
+  }
+  handleChange = (event) => {
+    this.setState({ value: event.target.value });
+  };
+  updateState = () => {
+    this.interval = new IntervalTimer("seekInterval", () => {
+      this.setState({ value: this.state.value + 1 });
+    }, 1000);
+    this.interval.start()
+  };
+  componentDidMount() {
+    this.updateState();
+  }
+  pause = () => {
+    // console.log(this.state)
+    if(!this.state.paused) {
+      this.interval.pause()
+      this.setState({paused: !this.state.paused})
+    } else if(this.state.paused) {
+      this.interval.resume()
+      this.setState({paused: !this.state.paused})
+    }
+  };
   render() {
     return (
       <div>
@@ -22,7 +54,7 @@ export default class Player extends Component {
                 {"Album"}
               </h2>
               <label
-                for="seek"
+                htmlFor="seek"
                 className="text-neutral-900 dark:text-neutral-50 text-lg"
               >
                 {"Musique"}
@@ -37,17 +69,21 @@ export default class Player extends Component {
                   id="progressBar"
                   type="range"
                   min="0"
-                  max="10"
-                  value="5"
+                  max={this.state.duration}
+                  value={this.state.value}
                   step="1"
-                  onChange={onSeekChange}
-                  class="w-full h-2 outline-none bg-neutral-200 rounded-lg appearance-none cursor-pointer dark:bg-neutral-700"
+                  onChange={this.handleChange}
+                  className="w-full h-2 outline-none bg-neutral-200 rounded-lg appearance-none cursor-pointer dark:bg-neutral-700"
                 />
               </div>
             </div>
             <div className="flex justify-between text-sm leading-6 font-medium tabular-nums">
-              <div className="text-green-500 dark:text-neutral-100">1:15</div>
-              <div className="text-neutral-500 dark:text-neutral-400">3:05</div>
+              <div className="text-green-500 dark:text-neutral-100">
+                {moment(this.state.value * 1000).format("mm[:]ss")}
+              </div>
+              <div className="text-neutral-500 dark:text-neutral-400">
+                {moment(this.state.duration * 1000).format("mm[:]ss")}
+              </div>
             </div>
           </div>
         </div>
@@ -89,11 +125,9 @@ export default class Player extends Component {
             type="button"
             className="bg-white text-neutral-900 dark:bg-neutral-100 dark:text-neutral-700 flex-none -my-2 mx-auto w-20 h-20 rounded-full ring-1 ring-neutral-900/5 shadow-md flex items-center justify-center"
             aria-label="Pause"
+            onClick={this.pause}
           >
-            <svg width={30} height={32} fill="currentColor">
-              <rect x={6} y={4} width={4} height={24} rx={2} />
-              <rect x={20} y={4} width={4} height={24} rx={2} />
-            </svg>
+            {this.state.paused ? <i className="fa-solid fa-play text-3xl -mr-1"></i> : <i className="fa-duotone fa-pause text-4xl"></i>}
           </button>
           <div className="flex-auto flex items-center justify-evenly">
             <button type="button" className="block" aria-label="Next">
@@ -126,8 +160,4 @@ export default class Player extends Component {
       </div>
     );
   }
-}
-
-function onSeekChange(event) {
-  console.log(event)
 }
