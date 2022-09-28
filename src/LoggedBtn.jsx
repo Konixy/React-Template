@@ -16,7 +16,6 @@ function classNames(...classes) {
 export default function LoggedBtn() {
   const [user, setUser] = useState({ type: "loader" });
   const [cookie, setCookie] = useCookies([])
-  setCookie("connect.sid", "s%3AH3srpjztXqhv334ieP9jbBzuTD4c9Fa2.YyGBYpWibbAem076Je47VT0TY9xp24c9vcP1nkPqVdk")
 
   async function getInfo() {
     // const cookie = "connect.sid=s%3AH3srpjztXqhv334ieP9jbBzuTD4c9Fa2.YyGBYpWibbAem076Je47VT0TY9xp24c9vcP1nkPqVdk";
@@ -25,17 +24,22 @@ export default function LoggedBtn() {
     // header.append("Access-Control-Allow-Origin", "http://172.0.0.1:1000/")
     // const request = await fetch(`${config.backendPath}/api/info`, {method: 'GET', credentials: "include"})
     console.log(cookie["connect.sid"])
-    const request = jQuery.ajax({
-      url: `${config.backendPath}/api/info`,
-      withCredentials: true,
-      beforeSend: xhr => {
-        xhr.setRequestHeader("Cookie", `connect.sid=${cookie["connect.sid"]}`);
-        xhr.setRequestHeader('Accept', 'text/json')
-      }, success: data => {
-        console.log(data)
-        setUser(data.user)
-      }
+    // const axiosConfig = {
+    //   headers: {
+    //     'content-Type': 'application/json',
+    //     "Accept": "/",
+    //     "Cache-Control": "no-cache",
+    //     "Cookie": document.cookie
+    //   },
+    //   credentials: "same-origin"
+    // };
+    // axios.defaults.withCredentials = true;
+    const request = axios.get(`${config.backendPath}/api/info`)
+    .then(r => {
+      setUser(r.data.user)
+      console.log(r.data)
     })
+    .catch(err => console.error(err))
     console.log('sended')
     // .then(r => r.json())
     // .then((r) => {
