@@ -174,10 +174,10 @@ export default class Player extends Component {
 }
 
 function PlayerFunction() {
-  console.log(document.querySelector(".song-saved"));
-  document.querySelector(".song-saved").addEventListener("click", function () {
-    document.querySelector(".song-saved").classList.toggle("saved");
-  });
+  // console.log(document.querySelector(".song-saved"));
+  // document.querySelector(".song-saved").addEventListener("click", function () {
+  //   document.querySelector(".song-saved").classList.toggle("saved");
+  // });
 
   Amplitude.init({
     bindings: {
