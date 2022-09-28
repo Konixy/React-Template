@@ -16,7 +16,7 @@ class App extends React.Component {
   render() {
     return (
       <Router>
-        <header><Header cookies={this.connectUid} /></header>
+        <header><Header /></header>
         <main>
           <Routes>
             <Route exact path="/" element={<Home />} />
