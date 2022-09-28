@@ -10,16 +10,10 @@ import Player from "./Player";
 import Header from "./Header";
 import Home from "./Home"
 import NotFound from "./NotFound";
-import Cookie from "js-cookie"
+import {CookiesProvider} from "react-cookie"
 
 class App extends React.Component {
-  constructor() {
-    super()
-    this.connectUid = Cookie.get('connect.uid')
-  }
   render() {
-    // const { cookie } = this.state
-    // console.log(cookie)
     return (
       <Router>
         <header><Header cookies={this.connectUid} /></header>
@@ -36,4 +30,4 @@ class App extends React.Component {
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
+root.render(<CookiesProvider><App /></CookiesProvider>);

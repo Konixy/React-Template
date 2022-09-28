@@ -1,96 +1,130 @@
-import React, { Component, useState, useEffect, Fragment } from 'react'
-import axios from 'axios'
-import config from './config'
-import {TailSpin} from 'react-loader-spinner'
-import { Link } from 'react-router-dom'
-import { Menu, Transition } from '@headlessui/react'
-import Cookies from 'js-cookie'
-import { CookieProvider, withCookies } from 'react-cookie'
+import React, { Component, useState, useEffect, Fragment } from "react";
+import axios from "axios";
+import config from "./config";
+import { TailSpin } from "react-loader-spinner";
+import { Link } from "react-router-dom";
+import { Menu, Transition } from "@headlessui/react";
+import Cookies from "js-cookie";
+import { useCookies } from 'react-cookie'
+import jQuery from "jquery";
 // import Dropdown from './Dropdown'
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(" ");
 }
 
-export default class LoggedBtn extends Component {
-  state = {
-    cookie: this.props.cookies.get('user') || null
-  };
-  render() {
-    const [user, setUser] = useState({type: 'loader'});
+export default function LoggedBtn() {
+  const [user, setUser] = useState({ type: "loader" });
+  const [cookie, setCookie] = useCookies([])
+  setCookie("connect.sid", "s%3AH3srpjztXqhv334ieP9jbBzuTD4c9Fa2.YyGBYpWibbAem076Je47VT0TY9xp24c9vcP1nkPqVdk")
 
-    async function getInfo() {
-      const cookie = "connect.sid=s%3AH3srpjztXqhv334ieP9jbBzuTD4c9Fa2.YyGBYpWibbAem076Je47VT0TY9xp24c9vcP1nkPqVdk"
-      console.log(document.cookie)
-      await axios.get(`${config.backendPath}/api/info`)
-      .then(r => {
-        setUser(r.data.user);
-      })
-    }
-
-    function login() {
-      setUser({type: 'loader'})
-      // window.location.href = `${config.backendPath}/api/login`;
-      const width = window.innerWidth * 0.35;
-      const height = window.innerHeight * 0.90;
-      const loginWindow = window.open(`${config.backendPath}/api/login` , 'newwindow', 'width=' + width + ', height=' + height + ', top=' + (window.innerHeight - height) + ', left=' + (window.innerWidth - width) / 2);
-      const timer = setInterval(() => {
-        if(loginWindow.closed) {
-          getInfo();
-          clearInterval(timer)
-        }
-      }, 1000)
-    }
-    
-    function logout() {
-      axios.post(`${config.backendPath}/api/logout`)
-      return setUser(null)
-    }
-
-    function displayDrop() {
-      const style = document.querySelector(".dropdown").style
-      style.display = style.display === "none" ? "block" : "none"
-    }
-
-    useEffect(() => {
-      getInfo()
-    }, [])
-
-    return (
-      <>
-        {
-        user ?
-        (user.type === 'loader' ? 
-        <button className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" style={{width: "75px", height: "32px", justifyContent: "center"}}>
-          <TailSpin color='black' width='20px' height="20px" />
-        </button> :
-          <div className='drop-container'>
-            {Dropdown([user, setUser])}
-          </div>)
-        : 
-          <button onClick={login} className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0" style={{height: '32px', justifyContent: "center"}}>
-            {/* target="_blank" href={`${config.backendPath}/api/login`} rel="noopener noreferrer" */}
-            <i className='fa-brands fa-discord discordIcon text-black'></i>
-            Se connecter
-          </button>
-        }
-      </>
-    )
+  async function getInfo() {
+    // const cookie = "connect.sid=s%3AH3srpjztXqhv334ieP9jbBzuTD4c9Fa2.YyGBYpWibbAem076Je47VT0TY9xp24c9vcP1nkPqVdk";
+    // const header = new Headers()
+    // header.append('Cookie', cookie)
+    // header.append("Access-Control-Allow-Origin", "http://172.0.0.1:1000/")
+    // const request = await fetch(`${config.backendPath}/api/info`, {method: 'GET', credentials: "include"})
+    console.log(cookie["connect.sid"])
+    const request = jQuery.ajax({
+      url: `${config.backendPath}/api/info`,
+      withCredentials: true,
+      beforeSend: xhr => {
+        xhr.setRequestHeader("Cookie", `connect.sid=${cookie["connect.sid"]}`);
+        xhr.setRequestHeader('Accept', 'text/json')
+      }, success: data => {
+        console.log(data)
+        setUser(data.user)
+      }
+    })
+    console.log('sended')
+    // .then(r => r.json())
+    // .then((r) => {
+    //   console.log(r)
+    //   setUser(r.user);
+    // });
   }
 
+  function login() {
+    setUser({ type: "loader" });
+    // window.location.href = `${config.backendPath}/api/login`;
+    const width = window.innerWidth * 0.35;
+    const height = window.innerHeight * 0.9;
+    const loginWindow = window.open(
+      `${config.backendPath}/api/login`,
+      "newwindow",
+      "width=" +
+        width +
+        ", height=" +
+        height +
+        ", top=" +
+        (window.innerHeight - height) +
+        ", left=" +
+        (window.innerWidth - width) / 2
+    );
+    const timer = setInterval(() => {
+      if (loginWindow.closed) {
+        getInfo();
+        clearInterval(timer);
+      }
+    }, 1000);
+  }
+
+  function logout() {
+    axios.post(`${config.backendPath}/api/logout`);
+    return setUser(null);
+  }
+
+  function displayDrop() {
+    const style = document.querySelector(".dropdown").style;
+    style.display = style.display === "none" ? "block" : "none";
+  }
+
+  useEffect(() => {
+    getInfo();
+  }, []);
+
+  return (
+    <>
+      {user ? (
+        user.type === "loader" ? (
+          <button
+            className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0"
+            style={{ width: "75px", height: "32px", justifyContent: "center" }}
+          >
+            <TailSpin color="black" width="20px" height="20px" />
+          </button>
+        ) : (
+          <div className="drop-container">{Dropdown([user, setUser])}</div>
+        )
+      ) : (
+        <button
+          onClick={login}
+          className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0"
+          style={{ height: "32px", justifyContent: "center" }}
+        >
+          {/* target="_blank" href={`${config.backendPath}/api/login`} rel="noopener noreferrer" */}
+          <i className="fa-brands fa-discord discordIcon text-black"></i>
+          Se connecter
+        </button>
+      )}
+    </>
+  );
 }
 
 function Dropdown([user, setUser]) {
   function logout() {
-    axios.post(`${config.backendPath}/api/logout`)
-    return setUser(null)
+    axios.post(`${config.backendPath}/api/logout`);
+    return setUser(null);
   }
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
         <Menu.Button className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white dark:bg-transparent dark:text-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-black">
           {user.name}#{user.tag}
-          <i className="fa-solid fa-caret-down -mr-2 ml-1 mt-0 flex h-5 w-5 text-gray-700 dark:text-white drop-icon text-base" aria-hidden="true" />
+          <i
+            className="fa-solid fa-caret-down -mr-2 ml-1 mt-0 flex h-5 w-5 text-gray-700 dark:text-white drop-icon text-base"
+            aria-hidden="true"
+          />
         </Menu.Button>
       </div>
 
@@ -110,8 +144,10 @@ function Dropdown([user, setUser]) {
                 <a
                   href="#"
                   className={classNames(
-                    active ? 'bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300',
-                    'block px-4 py-2 text-sm'
+                    active
+                      ? "bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100"
+                      : "text-gray-700 dark:text-gray-300",
+                    "block px-4 py-2 text-sm"
                   )}
                 >
                   Account settings
@@ -123,8 +159,10 @@ function Dropdown([user, setUser]) {
                 <a
                   href="#"
                   className={classNames(
-                    active ? 'bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300',
-                    'block px-4 py-2 text-sm'
+                    active
+                      ? "bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100"
+                      : "text-gray-700 dark:text-gray-300",
+                    "block px-4 py-2 text-sm"
                   )}
                 >
                   Support
@@ -136,8 +174,10 @@ function Dropdown([user, setUser]) {
                 <a
                   href="#"
                   className={classNames(
-                    active ? 'bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300',
-                    'block px-4 py-2 text-sm'
+                    active
+                      ? "bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100"
+                      : "text-gray-700 dark:text-gray-300",
+                    "block px-4 py-2 text-sm"
                   )}
                 >
                   License
@@ -150,8 +190,10 @@ function Dropdown([user, setUser]) {
                   <button
                     type="submit"
                     className={classNames(
-                      active ? 'bg-gray-100 text-red-600 dark:bg-neutral-700' : 'text-red-600',
-                      'block w-full px-4 py-2 text-left text-sm'
+                      active
+                        ? "bg-gray-100 text-red-600 dark:bg-neutral-700"
+                        : "text-red-600",
+                      "block w-full px-4 py-2 text-left text-sm"
                     )}
                     onClick={logout}
                   >
@@ -164,5 +206,5 @@ function Dropdown([user, setUser]) {
         </Menu.Items>
       </Transition>
     </Menu>
-  )
+  );
 }

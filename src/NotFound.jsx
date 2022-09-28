@@ -11,8 +11,8 @@ export default () => {
                         <span className="sr-only">Error </span>404
                     </h2>
                     <p className="text-2xl font-semibold md:text-3xl">Désolé, cette page n'éxiste pas.</p>
-                    <p className="mt-4 mb-8 dark:text-gray-400">Ne vous inquietez pas . But dont worry, you can find plenty of other things on our homepage.</p>
-                    <Link rel="noopener noreferrer" to="/" className={btn2}>Back to homepage</Link>
+                    <p className="mt-4 mb-8 dark:text-gray-400">Mais ne vous inquietez pas, vous pourrez trouver plein d'autres choses sur notre page d'acceuil.</p>
+                    <Link rel="noopener noreferrer" to="/" className={btn2}>Retour a l'acceuil</Link>
                 </div>
             </div>
         </section>
