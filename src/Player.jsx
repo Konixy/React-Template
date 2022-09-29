@@ -8,7 +8,8 @@ export default class Player extends Component {
     this.state = {
       value: 34, // this.props.seek
       duration: 3 * 60 + 20, // this.props.server.currentTrack.duration
-      paused: false
+      paused: false,
+      serverId: "839183010"
     };
   }
   handleChange = (event) => {
@@ -34,6 +35,21 @@ export default class Player extends Component {
     }
   };
   render() {
+    const ws = new WebSocket('ws://localhost:8080');
+    ws.onopen = () => {
+        console.log('connected')
+        ws.send(JSON.stringify({event: "heartbeat", serverId: this.serverId}))
+        setInterval(() => {
+            ws.send(JSON.stringify({event: "heartbeat", serverId: this.serverId}))
+        }, 5000)
+    }
+    ws.onmessage = (msg => {
+        console.log(msg.data)
+    })
+    function pauseAction() {
+        console.log(ws.readyState)
+        ws.send(JSON.stringify({event: 'paused', serverId: this.serverId}));
+    }
     return (
       <div>
         <div className="bg-white border-neutral-100 dark:bg-neutral-800 dark:border-neutral-500 border-b rounded-t-xl p-4 pb-6 sm:p-10 sm:pb-8 lg:p-6 xl:p-10 xl:pb-8 space-y-6 sm:space-y-8 lg:space-y-6 xl:space-y-8">
