@@ -23,7 +23,7 @@ export default function LoggedBtn() {
     // header.append('Cookie', cookie)
     // header.append("Access-Control-Allow-Origin", "http://172.0.0.1:1000/")
     // const request = await fetch(`${config.backendPath}/api/info`, {method: 'GET', credentials: "include"})
-    console.log(cookie["connect.sid"])
+    // console.log(cookie["connect.sid"])
     // const axiosConfig = {
     //   headers: {
     //     'content-Type': 'application/json',
@@ -37,10 +37,10 @@ export default function LoggedBtn() {
     const request = axios.get(`${config.backendPath}/api/info`)
     .then(r => {
       setUser(r.data.user)
-      console.log(r.data)
+      // console.log(r.data)
     })
     .catch(err => console.error(err))
-    console.log('sended')
+    // console.log('sended')
     // .then(r => r.json())
     // .then((r) => {
     //   console.log(r)

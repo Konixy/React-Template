@@ -36,7 +36,7 @@ export default class Header extends Component {
             }, 5)
         }
 
-        console.log('dark mode: ', localStorage.getItem('darkMode'))
+        // console.log('dark mode: ', localStorage.getItem('darkMode'))
     
         return (
              

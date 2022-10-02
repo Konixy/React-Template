@@ -1,135 +1,180 @@
 import React, { Component, useEffect, useState } from "react";
 import moment from "moment";
 import { IntervalTimer } from "./Util";
-import { Oval } from 'react-loader-spinner';
+import { Oval } from "react-loader-spinner";
 import jQuery from "jquery";
+import WebSocketPlayer from "./WebSocketPlayer";
+import config from "./config";
+import SpotifyWebApi from "spotify-web-api-node";
+import axios from "axios";
+const Spotify = new SpotifyWebApi({
+  clientId: config.spotifyClientId,
+  clientSecret: config.spotifyClientSecret,
+  accessToken: config.spotifyToken,
+});
 
 export default class Player extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: 3 * 60, // this.props.seek
-      duration: 3 * 60 + 20, // this.props.server.currentTrack.duration
+      value: 0, // this.props.seek
+      duration: 0, // this.props.server.currentTrack.duration
       paused: false,
-      loading: false,
-      serverId: "839183010"
+      loading: true,
+      playing: false,
+      serverId: "673495870679023627",
+      ws: null,
+      track: {
+        name: "Rien pour le moment.",
+        albumName: "",
+        artists: [],
+        coverUrl: null,
+        url: null,
+        id: null,
+      },
     };
   }
-  handleChange = (event) => {
-    if(this.state.loading || document.querySelector('.pauseBtn').disabled) return;
-    this.setState({ value: Number(event.target.value) });
-  };
   updateState = () => {
-    this.interval = new IntervalTimer("seekInterval", () => {
-      this.setState({ value: this.state.value + 1 });
-    }, 1000);
-    this.interval.start()
+    this.interval = new IntervalTimer(
+      "seekInterval",
+      () => {
+        this.state.value++;
+      },
+      1000
+    );
+    this.interval.start();
+  };
+  updateInfo = async (data) => {
+    data.currentTrack.duration
+      ? (this.state.duration = Math.floor(data.currentTrack.duration / 1000))
+      : (this.state.duration = 0);
+    data.seek
+      ? (this.state.value = Math.floor(data.seek / 1000))
+      : (this.state.value = 0);
+    if (data.currentTrack.id) {
+      this.state.track = data.currentTrack;
+      // console.log(data.currentTrack.id)
+      Spotify.getTrack(data.currentTrack.id)
+        .then((data) => {
+          console.log(data);
+          this.state.track.albumName = data.body.album.name;
+          this.state.track.artists = data.body.artists || [];
+          this.state.track.coverUrl = data.body.album.images.filter(
+            (e) => e.width >= 300
+          )[0].url;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      this.state.loading = false;
+    } else {
+      this.state.loading = false;
+      this.state.playing = false;
+    }
+    this.state.paused = data.paused;
   };
   componentDidMount() {
-    this.updateState()
-    this.updateProgressBar()
+    this.updateState();
+    this.setUpWs();
   }
+  setUpWs = () => {
+    this.ws = new WebSocketPlayer(this.state.serverId, (msg) => {
+      const data = JSON.parse(msg.data);
+      if (data.event === "heartbeat") return;
+      if (!data.success) return console.log(data);
+      console.log(data);
+      this.updateInfo(data);
+    });
+    this.ws.init();
+  };
   pause = () => {
-    if(this.state.loading || document.querySelector('.pauseBtn').disabled) return;
-    // console.log(this.state)
-    if(!this.state.paused) {
-      this.interval.pause()
-      this.setState({paused: !this.state.paused})
-    } else if(this.state.paused) {
-      this.interval.resume()
-      this.setState({paused: !this.state.paused})
+    if (this.state.loading || document.querySelector(".pauseBtn").disabled)
+      return;
+    this.ws.send({ event: "pause" });
+    if (!this.state.paused) {
+      this.interval.pause();
+      this.setState({ paused: !this.state.paused });
+    } else if (this.state.paused) {
+      this.interval.resume();
+      this.setState({ paused: !this.state.paused });
     }
   };
   setLoading = () => {
-    this.state.value = 0
-    this.state.paused = true
-    this.state.loading = true
-    this.interval.pause()
-    document.querySelector('.pauseBtn').disabled = true
-    document.querySelector('#progressBar').disabled = true
-    this.render()
-  }
-  updateProgressBar = () => {
-    const progressBar = document.querySelector('#progressBar')
-    if(progressBar) {
-      const min = progressBar.min,
-      max = progressBar.max,
-      val = progressBar.value;
-      jQuery(progressBar).css({'backgroundSize': (val - min) * 100 / (max - min) + '% 100%'})
-    }
-  }
+    this.state.value = 0;
+    this.state.paused = true;
+    this.state.loading = true;
+    this.interval.pause();
+    document.querySelector(".pauseBtn").disabled = true;
+    document.querySelector("#progressBar").disabled = true;
+    this.render();
+  };
   render() {
-    if(!this.state.paused) {
+    if (!this.state.paused) {
       this.interval ? this.interval.resume() : "";
       // this.setState({paused: !this.state.paused})
-    } else if(this.state.paused) {
+    } else if (this.state.paused) {
       this.interval ? this.interval.pause() : "";
       // this.setState({paused: !this.state.paused})
     }
-    if(this.state.value > this.state.duration) this.setLoading();
-
-    if(this.state.loading) {
-      jQuery('#progressBar').css({backgroundSize: "0% 100%"})
-    } else {
-      this.updateProgressBar();
-    }
-
-    const ws = new WebSocket('ws://localhost:8080');
-    ws.onopen = () => {
-        console.log('connected')
-        ws.send(JSON.stringify({event: "heartbeat", serverId: this.serverId}))
-        setInterval(() => {
-            ws.send(JSON.stringify({event: "heartbeat", serverId: this.serverId}))
-        }, 5000)
-    }
-    ws.onmessage = (msg => {
-        console.log(msg.data)
-    })
-    function pauseAction() {
-        console.log(ws.readyState)
-        ws.send(JSON.stringify({event: 'paused', serverId: this.serverId}));
-    }
+    if (this.state.value > this.state.duration) this.setLoading();
     return (
       <div>
         <div className="bg-white border-neutral-100 dark:bg-neutral-800 dark:border-neutral-500 border-b rounded-t-xl p-4 pb-6 sm:p-10 sm:pb-8 lg:p-6 xl:p-10 xl:pb-8 space-y-6 sm:space-y-8 lg:space-y-6 xl:space-y-8">
           <div className="flex items-center space-x-4">
-            <img
-              src="/full-stack-radio.png"
-              alt=""
-              width={88}
-              height={88}
-              className="flex-none rounded-lg bg-neutral-100"
-              loading="lazy"
-            />
+            {this.state.track.coverUrl ? (
+              <img
+                src={this.state.track.coverUrl}
+                alt=""
+                width={88}
+                height={88}
+                className="flex-none rounded-lg bg-transparent"
+                loading="lazy"
+              />
+            ) : (
+              <img
+                src="https://f4.bcbits.com/img/a4139357031_10.jpg"
+                alt=""
+                width={88}
+                height={88}
+                className="flex-none rounded-lg bg-neutral-100"
+                loading="lazy"
+              />
+            )}
             <div className="min-w-0 flex-auto space-y-1 font-semibold">
-              <p className="text-green-500 dark:text-green-400 text-sm leading-6">
-                {"Artist"}
+              <p className="text-black dark:text-white text-sm leading-6">
+                {this.state.track.artists?.map((e) => (
+                  <>
+                    <a
+                      href={e.external_urls.spotify}
+                      target="_blank"
+                      className="text-green-500 dark:text-green-400 hover:underline"
+                    >
+                      {e.name}
+                    </a>
+                    {this.state.track.artists.length - 1 ===
+                    this.state.track.artists.findIndex((i) => i.id === e.id)
+                      ? ""
+                      : ", "}
+                  </>
+                ))}
               </p>
               <h2 className="text-neutral-500 dark:text-neutral-400 text-sm leading-6 truncate">
-                {"Album"}
+                {this.state.track.albumName === this.state.track.name
+                  ? ""
+                  : this.state.track.albumName}
               </h2>
               <label
                 htmlFor="seek"
                 className="text-neutral-900 dark:text-neutral-50 text-lg"
               >
-                {"Musique"}
+                {this.state.track.name}
               </label>
             </div>
           </div>
           <div className="space-y-2">
             <div className="relative">
               <div className="rounded-full overflow-hidden">
-                <input
-                  name="seek"
-                  id="progressBar"
-                  type="range"
-                  min="0"
-                  max={this.state.duration}
-                  value={this.state.value}
-                  step="1"
-                  onChange={this.handleChange}
-                  className="w-full h-1.5 outline-none bg-neutral-200 rounded-lg appearance-none cursor-pointer dark:bg-neutral-700"
-                />
+                  <ProgressBar state={this.state} />
               </div>
             </div>
             <div className="flex justify-between text-sm leading-6 font-medium tabular-nums">
@@ -144,7 +189,11 @@ export default class Player extends Component {
         </div>
         <div className="bg-neutral-50 text-neutral-500 dark:bg-neutral-600 dark:text-neutral-200 rounded-b-xl flex items-center">
           <div className="flex-auto flex items-center justify-evenly">
-            <button type="button" aria-label="Add to favorites" className="text-neutral-500 dark:text-neutral-200">
+            <button
+              type="button"
+              aria-label="Add to favorites"
+              className="text-neutral-500 dark:text-neutral-200"
+            >
               <svg width={24} height={24}>
                 <path
                   d="M7 6.931C7 5.865 7.853 5 8.905 5h6.19C16.147 5 17 5.865 17 6.931V19l-5-4-5 4V6.931Z"
@@ -184,18 +233,79 @@ export default class Player extends Component {
 }
 
 function PauseBtn(state) {
-  if(!state.loading) {
-    if(state.paused) {
-      return <i className="fa-solid fa-play text-3xl -mr-1"></i>
+  if (!state.loading) {
+    if (state.paused) {
+      return <i className="fa-solid fa-play text-3xl -mr-1"></i>;
     } else {
-      return <i className="fa-duotone fa-pause text-4xl"></i>
+      return <i className="fa-solid fa-pause text-4xl"></i>;
     }
   } else if (state.loading) {
     // text-neutral-900 dark:text-neutral-700
     let color;
-    if(document.querySelector('html').classList.contains('dark')) {
-      color = "#404040"
+    if (document.querySelector("html").classList.contains("dark")) {
+      color = "#404040";
     } else color = "#171717";
-    return <Oval color={color} secondaryColor="transparent" width="40px" height="40px" />
+    return (
+      <Oval
+        color={color}
+        secondaryColor="transparent"
+        width="40px"
+        height="40px"
+      />
+    );
+  } else if (!state.loading && !state.playing) {
+    return <i className="fa-solid fa-play text-3xl -mr-1" disabled></i>;
+  }
+}
+
+class ProgressBar extends Component {
+  constructor(props) {
+    super(props)
+    this.state = props.state
+  }
+  componentDidMount() {
+    this.updateProgressBar()
+  }
+  handleChange = (event) => {
+    if (this.state.loading || document.querySelector(".pauseBtn").disabled)
+      return;
+    this.setState({ value: Number(event.target.value) });
+  };
+  getProgressBarStyle = () => {
+    const progressBar = document.querySelector("#progressBar");
+    if (progressBar) {
+      const max = progressBar.max,
+        val = progressBar.value;
+        return {
+          backgroundSize: (val * 100) / max + "% 100%",
+        }
+      // jQuery(progressBar).css({
+      //   backgroundSize: (val * 100) / max + "% 100%",
+      // });
+    }
+  };
+  updateProgressBar = () => {
+    jQuery("#progressBar").css(this.getProgressBarStyle());
+  };
+  render() {
+    if (this.state.loading) {
+      jQuery("#progressBar").css({ backgroundSize: "0% 100%" });
+    } else {
+      this.updateProgressBar();
+    }
+    return (
+      <input
+        name="seek"
+        id="progressBar"
+        type="range"
+        min="0"
+        max={this.state.duration}
+        value={this.state.value}
+        step="1"
+        onChange={this.handleChange}
+        style={this.state.loading ? {backgroundSize: "0% 100%"} : this.updateProgressBar()}
+        className="w-full h-1.5 outline-none bg-neutral-200 rounded-lg appearance-none cursor-pointer dark:bg-neutral-700"
+      />
+    )
   }
 }
