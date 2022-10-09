@@ -141,7 +141,7 @@ html.dark nav {
 
 .pauseBtn:disabled {
     background-color: theme('colors.neutral.200') !important;
-    cursor: progress;
+    cursor: not-allowed;
 }
 
 html.dark .pauseBtn:disabled {

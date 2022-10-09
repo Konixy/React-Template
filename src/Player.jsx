@@ -19,10 +19,9 @@ export default class Player extends Component {
     this.state = {
       value: 0, // this.props.seek
       duration: 0, // this.props.server.currentTrack.duration
-      paused: false,
-      loading: true,
+      paused: true,
       playing: false,
-      serverId: "673495870679023627",
+      serverId: "705170371355082762",
       ws: null,
       track: {
         name: "Rien pour le moment.",
@@ -45,33 +44,39 @@ export default class Player extends Component {
     this.interval.start();
   };
   updateInfo = async (data) => {
-    data.currentTrack.duration
-      ? (this.state.duration = Math.floor(data.currentTrack.duration / 1000))
-      : (this.state.duration = 0);
-    data.seek
-      ? (this.state.value = Math.floor(data.seek / 1000))
-      : (this.state.value = 0);
+    console.log(data)
+    let newState = {}
+    if (!data.success) {
+      newState = { playing: false, paused: true };
+      this.setState(newState);
+      return this.render();
+    }
+    if (data.currentTrack.duration)
+      newState.duration = Math.floor(data.currentTrack.duration / 1000);
+    else newState.duration = 0;
+    if(data.seek)
+      newState.value = Math.floor(data.seek / 1000)
+    else newState.value = 0;
     if (data.currentTrack.id) {
-      this.state.track = data.currentTrack;
+      newState.track = data.currentTrack;
+      newState.playing = true;
       // console.log(data.currentTrack.id)
       Spotify.getTrack(data.currentTrack.id)
-        .then((data) => {
-          console.log(data);
-          this.state.track.albumName = data.body.album.name;
-          this.state.track.artists = data.body.artists || [];
-          this.state.track.coverUrl = data.body.album.images.filter(
-            (e) => e.width >= 300
+        .then((r) => {
+          newState.track.albumName = r.body.album.name;
+          newState.track.artists = r.body.artists || [];
+          newState.track.coverUrl = r.body.album.images.filter(
+            (e) => e.width >= 300 && e.width <= 400
           )[0].url;
         })
         .catch((err) => {
           console.log(err);
         });
-      this.state.loading = false;
     } else {
-      this.state.loading = false;
-      this.state.playing = false;
+      newState.playing = false;
     }
-    this.state.paused = data.paused;
+    newState.paused = data.paused;
+    this.setState(newState);
   };
   componentDidMount() {
     this.updateState();
@@ -81,14 +86,12 @@ export default class Player extends Component {
     this.ws = new WebSocketPlayer(this.state.serverId, (msg) => {
       const data = JSON.parse(msg.data);
       if (data.event === "heartbeat") return;
-      if (!data.success) return console.log(data);
-      console.log(data);
       this.updateInfo(data);
     });
     this.ws.init();
   };
   pause = () => {
-    if (this.state.loading || document.querySelector(".pauseBtn").disabled)
+    if (!this.state.playing || document.querySelector(".pauseBtn").disabled)
       return;
     this.ws.send({ event: "pause" });
     if (!this.state.paused) {
@@ -102,21 +105,18 @@ export default class Player extends Component {
   setLoading = () => {
     this.state.value = 0;
     this.state.paused = true;
-    this.state.loading = true;
     this.interval.pause();
     document.querySelector(".pauseBtn").disabled = true;
     document.querySelector("#progressBar").disabled = true;
-    this.render();
   };
   render() {
     if (!this.state.paused) {
       this.interval ? this.interval.resume() : "";
-      // this.setState({paused: !this.state.paused})
     } else if (this.state.paused) {
       this.interval ? this.interval.pause() : "";
-      // this.setState({paused: !this.state.paused})
     }
     if (this.state.value > this.state.duration) this.setLoading();
+    console.log(this.state)
     return (
       <div>
         <div className="bg-white border-neutral-100 dark:bg-neutral-800 dark:border-neutral-500 border-b rounded-t-xl p-4 pb-6 sm:p-10 sm:pb-8 lg:p-6 xl:p-10 xl:pb-8 space-y-6 sm:space-y-8 lg:space-y-6 xl:space-y-8">
@@ -143,7 +143,7 @@ export default class Player extends Component {
             <div className="min-w-0 flex-auto space-y-1 font-semibold">
               <p className="text-black dark:text-white text-sm leading-6">
                 {this.state.track.artists?.map((e) => (
-                  <>
+                  <span key={e.name}>
                     <a
                       href={e.external_urls.spotify}
                       target="_blank"
@@ -155,7 +155,7 @@ export default class Player extends Component {
                     this.state.track.artists.findIndex((i) => i.id === e.id)
                       ? ""
                       : ", "}
-                  </>
+                  </span>
                 ))}
               </p>
               <h2 className="text-neutral-500 dark:text-neutral-400 text-sm leading-6 truncate">
@@ -174,7 +174,7 @@ export default class Player extends Component {
           <div className="space-y-2">
             <div className="relative">
               <div className="rounded-full overflow-hidden">
-                  <ProgressBar state={this.state} />
+                <ProgressBar state={this.state} />
               </div>
             </div>
             <div className="flex justify-between text-sm leading-6 font-medium tabular-nums">
@@ -214,9 +214,13 @@ export default class Player extends Component {
             className="pauseBtn bg-white text-neutral-900 dark:bg-neutral-100 dark:text-neutral-700 flex-none -my-2 mx-auto w-20 h-20 rounded-full ring-1 ring-neutral-900/5 shadow-md flex items-center justify-center"
             aria-label="Pause"
             onClick={this.pause}
+            disabled={!this.state.playing ? true : false}
           >
-            {PauseBtn(this.state)}
-            {/* {this.state.paused ? <i className="fa-solid fa-play text-3xl -mr-1"></i> : <i className="fa-duotone fa-pause text-4xl"></i>} */}
+            {this.state.paused ? (
+              <i className="fa-solid fa-play text-3xl -mr-1"></i>
+            ) : (
+              <i className="fa-duotone fa-pause text-4xl"></i>
+            )}
           </button>
           <div className="flex-auto flex items-center justify-evenly">
             <button type="button" aria-label="Next">
@@ -232,42 +236,15 @@ export default class Player extends Component {
   }
 }
 
-function PauseBtn(state) {
-  if (!state.loading) {
-    if (state.paused) {
-      return <i className="fa-solid fa-play text-3xl -mr-1"></i>;
-    } else {
-      return <i className="fa-solid fa-pause text-4xl"></i>;
-    }
-  } else if (state.loading) {
-    // text-neutral-900 dark:text-neutral-700
-    let color;
-    if (document.querySelector("html").classList.contains("dark")) {
-      color = "#404040";
-    } else color = "#171717";
-    return (
-      <Oval
-        color={color}
-        secondaryColor="transparent"
-        width="40px"
-        height="40px"
-      />
-    );
-  } else if (!state.loading && !state.playing) {
-    return <i className="fa-solid fa-play text-3xl -mr-1" disabled></i>;
-  }
-}
-
 class ProgressBar extends Component {
   constructor(props) {
-    super(props)
-    this.state = props.state
+    super(props);
   }
   componentDidMount() {
-    this.updateProgressBar()
+    this.updateProgressBar();
   }
   handleChange = (event) => {
-    if (this.state.loading || document.querySelector(".pauseBtn").disabled)
+    if (!this.props.state.playing || document.querySelector(".pauseBtn").disabled)
       return;
     this.setState({ value: Number(event.target.value) });
   };
@@ -276,9 +253,9 @@ class ProgressBar extends Component {
     if (progressBar) {
       const max = progressBar.max,
         val = progressBar.value;
-        return {
-          backgroundSize: (val * 100) / max + "% 100%",
-        }
+      return {
+        backgroundSize: (val * 100) / max + "% 100%",
+      };
       // jQuery(progressBar).css({
       //   backgroundSize: (val * 100) / max + "% 100%",
       // });
@@ -288,24 +265,29 @@ class ProgressBar extends Component {
     jQuery("#progressBar").css(this.getProgressBarStyle());
   };
   render() {
-    if (this.state.loading) {
+    if (!this.props.state.playing) {
       jQuery("#progressBar").css({ backgroundSize: "0% 100%" });
     } else {
       this.updateProgressBar();
     }
+    console.log(this.props)
     return (
       <input
         name="seek"
         id="progressBar"
         type="range"
         min="0"
-        max={this.state.duration}
-        value={this.state.value}
+        max={this.props.state.duration}
+        value={this.props.state.value}
         step="1"
         onChange={this.handleChange}
-        style={this.state.loading ? {backgroundSize: "0% 100%"} : this.updateProgressBar()}
+        style={
+          !this.props.state.playing
+            ? { backgroundSize: "0% 100%" }
+            : this.getProgressBarStyle()
+        }
         className="w-full h-1.5 outline-none bg-neutral-200 rounded-lg appearance-none cursor-pointer dark:bg-neutral-700"
       />
-    )
+    );
   }
 }
