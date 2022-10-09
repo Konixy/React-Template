@@ -21,7 +21,7 @@ export default class Player extends Component {
       duration: 0, // this.props.server.currentTrack.duration
       paused: true,
       playing: false,
-      serverId: "705170371355082762",
+      serverId: config.localDevServerId,
       ws: null,
       track: {
         name: "Rien pour le moment.",
