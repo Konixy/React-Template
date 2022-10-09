@@ -49,6 +49,16 @@ export class IntervalTimer {
       this.state = 3;
       this.resumeId = setTimeout(() => this.timeoutCallback(), this.remaining);
     }
+
+    setPausedTime(nbr) {
+      if(this.state === 1) {
+        this.stop()
+        this.pausedTime = nbr
+        this.start()
+      } else {
+        this.pausedTime = nbr;
+      }
+    }
   
     timeoutCallback(){
       if (this.state != 3) return;

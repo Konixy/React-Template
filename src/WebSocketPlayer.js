@@ -7,13 +7,13 @@ export default class WebSocketPlayer {
         this.callback = callback
     }
     init() {
+        if(typeof this.callback !== 'function') return;
         this.ws.onopen = () => {
             console.log('WebSocket Server connected')
             this.ws.send(JSON.stringify({event: "heartbeat", serverId: this.serverId}))
-            this.ws.send(JSON.stringify({event: "info", serverId: this.serverId}))
             setInterval(() => {
                 this.ws.send(JSON.stringify({event: "heartbeat", serverId: this.serverId}))
-            }, 2500)
+            }, 900)
           }
           this.ws.onmessage = this.callback
     }

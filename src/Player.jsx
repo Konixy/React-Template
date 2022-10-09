@@ -30,6 +30,7 @@ export default class Player extends Component {
         coverUrl: null,
         url: null,
         id: null,
+        fetchId: null,
       },
     };
   }
@@ -37,46 +38,64 @@ export default class Player extends Component {
     this.interval = new IntervalTimer(
       "seekInterval",
       () => {
-        this.state.value++;
+        this.state.value + 1000;
+        this.setState(this.state)
       },
       1000
     );
     this.interval.start();
   };
   updateInfo = async (data) => {
-    console.log(data)
-    let newState = {}
     if (!data.success) {
-      newState = { playing: false, paused: true };
-      this.setState(newState);
-      return this.render();
+      this.state.playing = false;
+      this.state.paused = true;
+      return this.setState(this.state);
     }
     if (data.currentTrack.duration)
-      newState.duration = Math.floor(data.currentTrack.duration / 1000);
-    else newState.duration = 0;
-    if(data.seek)
-      newState.value = Math.floor(data.seek / 1000)
-    else newState.value = 0;
-    if (data.currentTrack.id) {
-      newState.track = data.currentTrack;
-      newState.playing = true;
-      // console.log(data.currentTrack.id)
-      Spotify.getTrack(data.currentTrack.id)
-        .then((r) => {
-          newState.track.albumName = r.body.album.name;
-          newState.track.artists = r.body.artists || [];
-          newState.track.coverUrl = r.body.album.images.filter(
-            (e) => e.width >= 300 && e.width <= 400
-          )[0].url;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else {
-      newState.playing = false;
+      this.state.duration = Math.floor(data.currentTrack.duration);
+    else this.state.duration = 0;
+    if(data.seek) {
+      const splited = `${data.seek}`.split('')
+      const nbr = Number(splited.splice(splited.length-3).join(''))
+      this.state.value = data.seek
+      if(!this.state.paused) {
+        this.interval.stop()
+        setTimeout(() => {
+          this.interval.start()
+        }, nbr)
+      }
     }
-    newState.paused = data.paused;
-    this.setState(newState);
+    else this.state.value = 0;
+    if (data.currentTrack.id) {
+      this.state.track.id = data.currentTrack.id
+      this.state.track.url = data.currentTrack.url;
+      this.state.track.name = data.currentTrack.name
+      this.state.playing = true;
+      if (!data.paused) {
+        this.interval.pause();
+      } else if (data.paused) {
+        this.interval.resume();
+      }
+      // console.log(data.currentTrack.id)
+      if(this.state.track.fetchId !== this.state.track.id) {
+        Spotify.getTrack(data.currentTrack.id)
+          .then((r) => {
+            this.state.track.fetchId = r.body.id
+            this.state.track.albumName = r.body.album.name;
+            this.state.track.artists = r.body.artists || [];
+            this.state.track.coverUrl = r.body.album.images.filter(
+              (e) => e.width >= 300 && e.width <= 400
+            )[0].url;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    } else {
+      this.state.playing = false;
+    }
+    this.state.paused = data.paused
+    this.setState(this.state);
   };
   componentDidMount() {
     this.updateState();
@@ -85,22 +104,13 @@ export default class Player extends Component {
   setUpWs = () => {
     this.ws = new WebSocketPlayer(this.state.serverId, (msg) => {
       const data = JSON.parse(msg.data);
-      if (data.event === "heartbeat") return;
       this.updateInfo(data);
     });
     this.ws.init();
   };
   pause = () => {
-    if (!this.state.playing || document.querySelector(".pauseBtn").disabled)
-      return;
+    if (!this.state.playing || document.querySelector(".pauseBtn").disabled) return;
     this.ws.send({ event: "pause" });
-    if (!this.state.paused) {
-      this.interval.pause();
-      this.setState({ paused: !this.state.paused });
-    } else if (this.state.paused) {
-      this.interval.resume();
-      this.setState({ paused: !this.state.paused });
-    }
   };
   setLoading = () => {
     this.state.value = 0;
@@ -108,6 +118,7 @@ export default class Player extends Component {
     this.interval.pause();
     document.querySelector(".pauseBtn").disabled = true;
     document.querySelector("#progressBar").disabled = true;
+    this.setState(this.state)
   };
   render() {
     if (!this.state.paused) {
@@ -115,31 +126,19 @@ export default class Player extends Component {
     } else if (this.state.paused) {
       this.interval ? this.interval.pause() : "";
     }
-    if (this.state.value > this.state.duration) this.setLoading();
-    console.log(this.state)
+    // if (this.state.value > this.state.duration) this.setLoading();
     return (
       <div>
         <div className="bg-white border-neutral-100 dark:bg-neutral-800 dark:border-neutral-500 border-b rounded-t-xl p-4 pb-6 sm:p-10 sm:pb-8 lg:p-6 xl:p-10 xl:pb-8 space-y-6 sm:space-y-8 lg:space-y-6 xl:space-y-8">
           <div className="flex items-center space-x-4">
-            {this.state.track.coverUrl ? (
               <img
-                src={this.state.track.coverUrl}
+                src={this.state.track.coverUrl ? this.state.track.coverUrl : "https://f4.bcbits.com/img/a4139357031_10.jpg"}
                 alt=""
                 width={88}
                 height={88}
-                className="flex-none rounded-lg bg-transparent"
+                className={["flex-none rounded-lg", this.state.track.coverUrl ? "bg-transparent" : "bg-neutral-100"].join(' ')}
                 loading="lazy"
               />
-            ) : (
-              <img
-                src="https://f4.bcbits.com/img/a4139357031_10.jpg"
-                alt=""
-                width={88}
-                height={88}
-                className="flex-none rounded-lg bg-neutral-100"
-                loading="lazy"
-              />
-            )}
             <div className="min-w-0 flex-auto space-y-1 font-semibold">
               <p className="text-black dark:text-white text-sm leading-6">
                 {this.state.track.artists?.map((e) => (
@@ -179,10 +178,10 @@ export default class Player extends Component {
             </div>
             <div className="flex justify-between text-sm leading-6 font-medium tabular-nums">
               <div className="text-green-500 dark:text-neutral-100">
-                {moment(this.state.value * 1000).format("mm[:]ss")}
+                {moment(this.state.value).format("mm[:]ss")}
               </div>
               <div className="text-neutral-500 dark:text-neutral-400">
-                {moment(this.state.duration * 1000).format("mm[:]ss")}
+                {moment(this.state.duration).format("mm[:]ss")}
               </div>
             </div>
           </div>
@@ -239,6 +238,7 @@ export default class Player extends Component {
 class ProgressBar extends Component {
   constructor(props) {
     super(props);
+    this.state = props.state
   }
   componentDidMount() {
     this.updateProgressBar();
@@ -246,7 +246,8 @@ class ProgressBar extends Component {
   handleChange = (event) => {
     if (!this.props.state.playing || document.querySelector(".pauseBtn").disabled)
       return;
-    this.setState({ value: Number(event.target.value) });
+    this.state.value = Number(event.target.value)
+    this.setState(this.state);
   };
   getProgressBarStyle = () => {
     const progressBar = document.querySelector("#progressBar");
@@ -254,15 +255,17 @@ class ProgressBar extends Component {
       const max = progressBar.max,
         val = progressBar.value;
       return {
-        backgroundSize: (val * 100) / max + "% 100%",
+        backgroundSize: ((val * 100) / max)+0.3 + "% 100%",
       };
-      // jQuery(progressBar).css({
-      //   backgroundSize: (val * 100) / max + "% 100%",
-      // });
     }
   };
   updateProgressBar = () => {
-    jQuery("#progressBar").css(this.getProgressBarStyle());
+    const progressBar = document.querySelector("#progressBar");
+    if (progressBar) {
+      const max = progressBar.max,
+        val = progressBar.value;
+      return jQuery("#progressBar").css({backgroundSize: (val * 100) / max + "% 100%"});
+    }
   };
   render() {
     if (!this.props.state.playing) {
@@ -270,7 +273,6 @@ class ProgressBar extends Component {
     } else {
       this.updateProgressBar();
     }
-    console.log(this.props)
     return (
       <input
         name="seek"
