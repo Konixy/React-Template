@@ -112,6 +112,11 @@ export default class Player extends Component {
     if (!this.state.playing || document.querySelector(".pauseBtn").disabled) return;
     this.ws.send({ event: "pause" });
   };
+  previous = () => {
+    if (!this.state.playing || document.querySelector(".pauseBtn").disabled) return;
+    console.log('previous btn clicked')
+    this.ws.send({ event: "previous" });
+  }
   setLoading = () => {
     this.state.value = 0;
     this.state.paused = true;
@@ -204,7 +209,7 @@ export default class Player extends Component {
                 />
               </svg>
             </button>
-            <button type="button" aria-label="Previous">
+            <button type="button" aria-label="Previous" onClick={this.previous}>
               <i className="fa-solid fa-backward-step text-neutral-500 dark:text-neutral-200 text-xl"></i>
             </button>
           </div>
