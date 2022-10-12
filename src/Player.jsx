@@ -5,13 +5,14 @@ import { Oval } from "react-loader-spinner";
 import jQuery from "jquery";
 import WebSocketPlayer from "./WebSocketPlayer";
 import config from "./config";
-import SpotifyWebApi from "spotify-web-api-node";
+// import SpotifyWebApi from "spotify-web-api-node";
 import axios from "axios";
-const Spotify = new SpotifyWebApi({
-  clientId: config.spotifyClientId,
-  clientSecret: config.spotifyClientSecret,
-  accessToken: config.spotifyToken,
-});
+import { code } from './Util';
+// const Spotify = new SpotifyWebApi({
+//   clientId: config.spotifyClientId,
+//   clientSecret: config.spotifyClientSecret,
+//   accessToken: config.spotifyToken,
+// });
 
 export default class Player extends Component {
   constructor(props) {
@@ -24,7 +25,7 @@ export default class Player extends Component {
       serverId: config.localDevServerId,
       ws: null,
       track: {
-        name: "Rien pour le moment.",
+        name: "Chargement...",
         albumName: "",
         artists: [],
         coverUrl: null,
@@ -39,7 +40,7 @@ export default class Player extends Component {
       "seekInterval",
       () => {
         this.state.value + 1000;
-        this.setState(this.state)
+        this.setState(this.state);
       },
       1000
     );
@@ -47,6 +48,13 @@ export default class Player extends Component {
   };
   updateInfo = async (data) => {
     if (!data.success) {
+      if(data.conectionError) {
+        this.state.track.name = "Connexion perdu"
+        this.state.track.albumName = <>Veuillez verifier votre connexion internet</>
+      } else {
+        this.state.track.name = "Aucune musique en cours"
+        this.state.track.albumName = <>Tapez <code className={code}>/play</code> pour commencer a écouter</>
+      }
       this.state.playing = false;
       this.state.paused = true;
       return this.setState(this.state);
@@ -92,6 +100,8 @@ export default class Player extends Component {
           });
       }
     } else {
+      this.state.track.name = "Aucune musique en cours"
+      this.state.track.albumName = <>Tapez <code className={code}>/play</code> pour commencer a écouter</>
       this.state.playing = false;
     }
     this.state.paused = data.paused
@@ -105,6 +115,11 @@ export default class Player extends Component {
     this.ws = new WebSocketPlayer(this.state.serverId, (msg) => {
       const data = JSON.parse(msg.data);
       this.updateInfo(data);
+    }, (err) => {
+      this.updateInfo({success: false, conectionError: true});
+      setTimeout(() => {
+        this.setUpWs();
+      }, 2500);
     });
     this.ws.init();
   };

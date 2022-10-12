@@ -5,7 +5,7 @@ import { TailSpin } from "react-loader-spinner";
 import { Link } from "react-router-dom";
 import { Menu, Transition } from "@headlessui/react";
 import Cookies from "js-cookie";
-import { useCookies } from 'react-cookie'
+import { useCookies } from "react-cookie";
 import jQuery from "jquery";
 // import Dropdown from './Dropdown'
 
@@ -15,7 +15,7 @@ function classNames(...classes) {
 
 export default function LoggedBtn() {
   const [user, setUser] = useState({ type: "loader" });
-  const [cookie, setCookie] = useCookies([])
+  const [cookie, setCookie] = useCookies([]);
 
   async function getInfo() {
     // const cookie = "connect.sid=s%3AH3srpjztXqhv334ieP9jbBzuTD4c9Fa2.YyGBYpWibbAem076Je47VT0TY9xp24c9vcP1nkPqVdk";
@@ -34,12 +34,15 @@ export default function LoggedBtn() {
     //   credentials: "same-origin"
     // };
     // axios.defaults.withCredentials = true;
-    const request = axios.get(`${config.backendPath}/api/info`)
-    .then(r => {
-      setUser(r.data.user)
-      // console.log(r.data)
-    })
-    .catch(err => console.error(err))
+    const request = axios
+      .get(`${config.backendPath}/api/info`, {
+        headers: { setCookie: cookie["connect.sid"] },
+      })
+      .then((r) => {
+        setUser(r.data.user);
+        console.log(r.data)
+      })
+      .catch((err) => console.error(err));
     // console.log('sended')
     // .then(r => r.json())
     // .then((r) => {
