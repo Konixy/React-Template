@@ -36,7 +36,7 @@ export default function LoggedBtn() {
     // axios.defaults.withCredentials = true;
     const request = axios
       .get(`${config.backendPath}/api/info`, {
-        headers: { setCookie: cookie },
+        headers: { Cookie: `connect.sid=${encodeURIComponent(cookie["connect.sid"])}` },
       })
       .then((r) => {
         setUser(r.data.user);
