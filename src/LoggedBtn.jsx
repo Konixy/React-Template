@@ -33,7 +33,7 @@ export default function LoggedBtn() {
     //   },
     //   credentials: "same-origin"
     // };
-    axios.defaults.withCredentials = true;
+    // axios.defaults.withCredentials = true;
     const request = axios
       .get(`${config.backendPath}/api/info`, {
         headers: {
