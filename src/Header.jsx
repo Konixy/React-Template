@@ -1,42 +1,22 @@
-import React, { Component, useState, useEffect } from 'react'
+import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-const discordLink = "https://discord.gg/a2CmhsvEvM"
 import LoggedBtn from './LoggedBtn'
-import { useCookies } from 'react-cookie'
-import Cookies from 'js-cookie'
+import config from "./config"
 
 export default class Header extends Component {
     constructor() {
         super()
-        this.state = {darkMode: true}
-        // [this.cookie, this.setCookie] = useCookies()
     }
     componentDidMount() {
         this.setState({darkMode: localStorage.getItem('darkMode') || true})
-    }
-    toggleDarkMode = () => {
-        localStorage.setItem('darkMode', this.state.darkMode)
-        document.querySelector('html').classList.toggle('dark');
-        document.querySelector('.darkModeTogglerIcon').classList.toggle('fa-moon')
-        document.querySelector('.darkModeTogglerIcon').classList.toggle('fa-brightness')
     }
     render() {
         const navigation = [
             { title: "Commencer", path: "get-started" },
             { title: "A propos", path: "about" },
             { title: "Aide", path: "help" },
-            { title: "Support", path: discordLink, targetBlank: true }
+            { title: "Support", path: config.discordInvite, targetBlank: true }
         ]
-    
-        if(this.state.darkMode === true) {
-            document.querySelector('html').classList.toggle('dark');
-            setTimeout(() => {
-                document.querySelector('.darkModeTogglerIcon').classList.toggle('fa-moon')
-                document.querySelector('.darkModeTogglerIcon').classList.toggle('fa-brightness')
-            }, 5)
-        }
-
-        // console.log('dark mode: ', localStorage.getItem('darkMode'))
     
         return (
              
@@ -67,9 +47,6 @@ export default class Header extends Component {
                         }
               </ul>
                         <LoggedBtn />
-                <div className='darkModeToggler ml-4'>
-                    <button onClick={this.toggleDarkMode}><i className='fa-solid fa-moon text-black dark:text-white darkModeTogglerIcon text-lg'></i></button>
-                </div>
             </nav>
         )
     }

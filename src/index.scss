@@ -152,14 +152,12 @@ input[type=range] {
     background-repeat: no-repeat;
     border-radius: 10px;
     cursor: pointer;
-    -webkit-appearance: none;
 }
 
 input[type=range]::-webkit-slider-runnable-track {
     box-shadow: none;
     border: none;
     background: transparent;
-    -webkit-appearance: none;
 }
 
 

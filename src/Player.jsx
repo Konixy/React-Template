@@ -111,6 +111,9 @@ export default class Player extends Component {
     this.updateState();
     this.setUpWs();
   }
+  componentWillUnmount() {
+    this.ws?.destroy()
+  }
   setUpWs = () => {
     this.ws = new WebSocketPlayer(this.state.serverId, (msg) => {
       const data = JSON.parse(msg.data);
