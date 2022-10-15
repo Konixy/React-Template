@@ -230,7 +230,7 @@ export default class Player extends Component {
           </div>
           <button
             type="button"
-            className="pauseBtn bg-white text-neutral-900 dark:bg-neutral-100 dark:text-neutral-700 flex-none -my-2 mx-auto w-20 h-20 rounded-full ring-1 ring-neutral-900/5 shadow-md flex items-center justify-center"
+            className="pauseBtn disabled:bg-neutral-200 dark:disabled:bg-neutral-400 bg-white text-neutral-900 dark:bg-neutral-100 dark:text-neutral-700 flex-none -my-2 mx-auto w-20 h-20 rounded-full ring-1 ring-neutral-900/5 shadow-md flex items-center justify-center"
             aria-label="Pause"
             onClick={this.pause}
             disabled={!this.state.playing ? true : false}

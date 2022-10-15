@@ -2,6 +2,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind variants;
 
 
 $gradient80: linear-gradient(45deg, rgba(130,209,57,1) 0%, rgba(0,240,227,1) 80%);
@@ -108,14 +109,6 @@ body {
     opacity: 75%;
 }
 
-html.dark body {
-    background-color: $darkColor;
-}
-
-html.dark nav {
-    background-color: $darkColor;
-}
-
 .darkModeTogglerIcon {
     transition: 0.05s ease-in-out;
 }
@@ -139,15 +132,6 @@ html.dark nav {
     margin-top: -1px;
 }
 
-.pauseBtn:disabled {
-    background-color: theme('colors.neutral.200') !important;
-    cursor: not-allowed;
-}
-
-html.dark .pauseBtn:disabled {
-    background-color: theme('colors.neutral.400') !important;
-}
-
 #progressBar:disabled {
     cursor: not-allowed;
 }
@@ -163,7 +147,6 @@ $rangeColor: #4ade80;
 
 input[type=range] {
     outline: none;
-    background-color: #dedede;
     background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, $rangeColor), color-stop(100%, $rangeColor));
     background-size: 0% 100%;
     background-repeat: no-repeat;
