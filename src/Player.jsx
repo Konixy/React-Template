@@ -5,13 +5,14 @@ import { Oval } from "react-loader-spinner";
 import jQuery from "jquery";
 import WebSocketPlayer from "./WebSocketPlayer";
 import config from "./config";
-import SpotifyWebApi from "spotify-web-api-node";
+// import SpotifyWebApi from "spotify-web-api-node";
 import axios from "axios";
-const Spotify = new SpotifyWebApi({
-  clientId: config.spotifyClientId,
-  clientSecret: config.spotifyClientSecret,
-  accessToken: config.spotifyToken,
-});
+import { code } from './Util';
+// const Spotify = new SpotifyWebApi({
+//   clientId: config.spotifyClientId,
+//   clientSecret: config.spotifyClientSecret,
+//   accessToken: config.spotifyToken,
+// });
 
 export default class Player extends Component {
   constructor(props) {
@@ -24,7 +25,7 @@ export default class Player extends Component {
       serverId: config.localDevServerId,
       ws: null,
       track: {
-        name: "Rien pour le moment.",
+        name: "Chargement...",
         albumName: "",
         artists: [],
         coverUrl: null,
@@ -39,7 +40,7 @@ export default class Player extends Component {
       "seekInterval",
       () => {
         this.state.value + 1000;
-        this.setState(this.state)
+        this.setState(this.state);
       },
       1000
     );
@@ -47,6 +48,13 @@ export default class Player extends Component {
   };
   updateInfo = async (data) => {
     if (!data.success) {
+      if(data.conectionError) {
+        this.state.track.name = "Connexion perdu"
+        this.state.track.albumName = <>Veuillez verifier votre connexion internet</>
+      } else {
+        this.state.track.name = "Aucune musique en cours"
+        this.state.track.albumName = <>Tapez <code className={code}>/play</code> pour commencer a écouter</>
+      }
       this.state.playing = false;
       this.state.paused = true;
       return this.setState(this.state);
@@ -92,6 +100,8 @@ export default class Player extends Component {
           });
       }
     } else {
+      this.state.track.name = "Aucune musique en cours"
+      this.state.track.albumName = <>Tapez <code className={code}>/play</code> pour commencer a écouter</>
       this.state.playing = false;
     }
     this.state.paused = data.paused
@@ -105,6 +115,11 @@ export default class Player extends Component {
     this.ws = new WebSocketPlayer(this.state.serverId, (msg) => {
       const data = JSON.parse(msg.data);
       this.updateInfo(data);
+    }, (err) => {
+      this.updateInfo({success: false, conectionError: true});
+      setTimeout(() => {
+        this.setUpWs();
+      }, 2500);
     });
     this.ws.init();
   };
@@ -112,6 +127,11 @@ export default class Player extends Component {
     if (!this.state.playing || document.querySelector(".pauseBtn").disabled) return;
     this.ws.send({ event: "pause" });
   };
+  previous = () => {
+    if (!this.state.playing || document.querySelector(".pauseBtn").disabled) return;
+    console.log('previous btn clicked')
+    this.ws.send({ event: "previous" });
+  }
   setLoading = () => {
     this.state.value = 0;
     this.state.paused = true;
@@ -204,13 +224,13 @@ export default class Player extends Component {
                 />
               </svg>
             </button>
-            <button type="button" aria-label="Previous">
+            <button type="button" aria-label="Previous" onClick={this.previous}>
               <i className="fa-solid fa-backward-step text-neutral-500 dark:text-neutral-200 text-xl"></i>
             </button>
           </div>
           <button
             type="button"
-            className="pauseBtn bg-white text-neutral-900 dark:bg-neutral-100 dark:text-neutral-700 flex-none -my-2 mx-auto w-20 h-20 rounded-full ring-1 ring-neutral-900/5 shadow-md flex items-center justify-center"
+            className="pauseBtn disabled:bg-neutral-200 dark:disabled:bg-neutral-400 bg-white text-neutral-900 dark:bg-neutral-100 dark:text-neutral-700 flex-none -my-2 mx-auto w-20 h-20 rounded-full ring-1 ring-neutral-900/5 shadow-md flex items-center justify-center"
             aria-label="Pause"
             onClick={this.pause}
             disabled={!this.state.playing ? true : false}

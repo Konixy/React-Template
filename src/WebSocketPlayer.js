@@ -1,21 +1,25 @@
 import config from './config'
 
 export default class WebSocketPlayer {
-    constructor(serverId, callback) {
+    constructor(serverId, callback, onerror) {
         this.ws = new WebSocket(config.wsUri);
         this.serverId = serverId
         this.callback = callback
+        this.onerror = onerror
     }
     init() {
         if(typeof this.callback !== 'function') return;
+        if(typeof this.onerror !== 'function') return;
+        
         this.ws.onopen = () => {
             console.log('WebSocket Server connected')
             this.ws.send(JSON.stringify({event: "heartbeat", serverId: this.serverId}))
             setInterval(() => {
                 this.ws.send(JSON.stringify({event: "heartbeat", serverId: this.serverId}))
             }, 900)
-          }
-          this.ws.onmessage = this.callback
+        }
+        this.ws.onmessage = this.callback
+        this.ws.onerror = this.onerror
     }
     send(msg) {
         msg.serverId = this.serverId

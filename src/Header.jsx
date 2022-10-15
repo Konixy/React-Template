@@ -40,7 +40,7 @@ export default class Header extends Component {
     
         return (
              
-            <nav className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center bg-white">
+            <nav className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center bg-white dark:bg-[#121212]">
               <Link to="/" className="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
                 <img src="https://cdn.worldvectorlogo.com/logos/spotify-2.svg" alt="SpotiCord" width="30px" height="30px" className='mr-1' />
                 <span className='nav-brand dark:text-white'>SpotiCord</span>

@@ -4,9 +4,7 @@ import config from "./config";
 import { TailSpin } from "react-loader-spinner";
 import { Link } from "react-router-dom";
 import { Menu, Transition } from "@headlessui/react";
-import Cookies from "js-cookie";
-import { useCookies } from 'react-cookie'
-import jQuery from "jquery";
+import { useCookies } from "react-cookie";
 // import Dropdown from './Dropdown'
 
 function classNames(...classes) {
@@ -15,37 +13,31 @@ function classNames(...classes) {
 
 export default function LoggedBtn() {
   const [user, setUser] = useState({ type: "loader" });
-  const [cookie, setCookie] = useCookies([])
+  const [cookie, setCookie] = useCookies([]);
+  // const {data, error} = useSWR(`${config.backendPath}/api/info`)
 
   async function getInfo() {
-    // const cookie = "connect.sid=s%3AH3srpjztXqhv334ieP9jbBzuTD4c9Fa2.YyGBYpWibbAem076Je47VT0TY9xp24c9vcP1nkPqVdk";
-    // const header = new Headers()
-    // header.append('Cookie', cookie)
-    // header.append("Access-Control-Allow-Origin", "http://172.0.0.1:1000/")
-    // const request = await fetch(`${config.backendPath}/api/info`, {method: 'GET', credentials: "include"})
-    // console.log(cookie["connect.sid"])
-    // const axiosConfig = {
-    //   headers: {
-    //     'content-Type': 'application/json',
-    //     "Accept": "/",
-    //     "Cache-Control": "no-cache",
-    //     "Cookie": document.cookie
-    //   },
-    //   credentials: "same-origin"
-    // };
     // axios.defaults.withCredentials = true;
-    const request = axios.get(`${config.backendPath}/api/info`)
+    // const request = axios
+    //   .get(`${config.backendPath}/api/info`, {
+    //     headers: {
+    //       "Cache-Control": "no-cache",
+    //       Cookie: document.cookie,
+    //     },
+    //     credentials: "same-origin"
+    //   })
+    //   .then((r) => {
+    //     setUser(r.data.user);
+    //     console.log(r.data)
+    //   })
+    //   .catch((err) => console.error(err));
+
+    const request = axios.get(`${config.backendPath}/api/info`, {withCredentials: true})
     .then(r => {
-      setUser(r.data.user)
-      // console.log(r.data)
+      r.data.success ? setUser(r.data.user) : setUser(null)
+      console.log(r.data.user)
     })
-    .catch(err => console.error(err))
-    // console.log('sended')
-    // .then(r => r.json())
-    // .then((r) => {
-    //   console.log(r)
-    //   setUser(r.user);
-    // });
+    .catch(err => console.log(err))
   }
 
   function login() {
@@ -123,10 +115,11 @@ function Dropdown([user, setUser]) {
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
-        <Menu.Button className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white dark:bg-transparent dark:text-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-black">
-          {user.name}#{user.tag}
+        <Menu.Button className="inline-flex w-full justify-center rounded-md dark:text-neutral-300 dark:hover:text-white text-neutral-500 hover:text-neutral-800 px-4 py-2 text-sm font-medium focus:outline-none">
+          <img src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`} alt={user.username} width="32px" height="32px" className="rounded-full" />
+          {user.username}
           <i
-            className="fa-solid fa-caret-down -mr-2 ml-1 mt-0 flex h-5 w-5 text-gray-700 dark:text-white drop-icon text-base"
+            className="fa-solid fa-caret-down -mr-2 ml-1 mt-0 flex h-5 w-5 drop-icon text-base"
             aria-hidden="true"
           />
         </Menu.Button>
