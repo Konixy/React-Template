@@ -7,9 +7,8 @@ export default () => {
             Partage ta<br />
             <div className='gradient'>
                 <div className='md:text-5xl md:mb-4'>musique</div>
-                <Link to="/app" className='btn md:text-xl text-white'>Commencer à écouter</Link>
+                <Link to="/get-started" className='btn md:text-xl text-white'>Commencer à écouter</Link>
             </div>
-            {/* <span className='gradientText md:text-5xl'>musique</span> */}
         </div>
     )
 }
