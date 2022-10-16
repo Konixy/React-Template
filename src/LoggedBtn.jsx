@@ -66,7 +66,7 @@ export default function LoggedBtn() {
 
   return (
     <>
-      {user.connected ? (
+      {user ? (
         user.type === "loader" ? (
           <button
             className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0"
