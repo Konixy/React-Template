@@ -13,26 +13,11 @@ function classNames(...classes) {
 }
 
 export default function LoggedBtn() {
-  const [user, setUser] = useState({ type: "loader" });
+  const [user, setUser] = useState({ type: "loader"})
   const [cookie, setCookie] = useCookies([]);
   // const {data, error} = useSWR(`${config.backendPath}/api/info`)
 
   async function getInfo() {
-    // axios.defaults.withCredentials = true;
-    // const request = axios
-    //   .get(`${config.backendPath}/api/info`, {
-    //     headers: {
-    //       "Cache-Control": "no-cache",
-    //       Cookie: document.cookie,
-    //     },
-    //     credentials: "same-origin"
-    //   })
-    //   .then((r) => {
-    //     setUser(r.data.user);
-    //     console.log(r.data)
-    //   })
-    //   .catch((err) => console.error(err));
-
     const request = axios
       .get(`${config.backendPath}/api/info`)
       .then((r) => {
@@ -43,7 +28,6 @@ export default function LoggedBtn() {
 
   function login() {
     setUser({ type: "loader" });
-    // window.location.href = `${config.backendPath}/api/login`;
     const width = window.innerWidth * 0.35;
     const height = window.innerHeight * 0.9;
     const loginWindow = window.open(
@@ -108,6 +92,10 @@ export default function LoggedBtn() {
 }
 
 function Dropdown([user, setUser]) {
+  function logout() {
+    axios.post(`${config.backendPath}/api/logout`);
+    return setUser(null);
+  }
   const dropdownItems = [
     { type: "link", name: "Account settings", href: "/settings" },
     { type: "href", name: "Support", href: config.discordInvite },
@@ -125,10 +113,6 @@ function Dropdown([user, setUser]) {
     base: "block px-4 py-2 mx-2 my-1 text-sm rounded-md",
   };
 
-  function logout() {
-    axios.post(`${config.backendPath}/api/logout`);
-    return setUser(null);
-  }
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
@@ -208,67 +192,6 @@ function Dropdown([user, setUser]) {
                 </Menu.Item>
               )
             )}
-            {/* <Menu.Item>
-              {({ active }) => (
-                <a
-                  href="#"
-                  className={classNames(
-                    active
-                      ? "bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100"
-                      : "text-gray-700 dark:text-gray-300",
-                    "block px-4 py-2 text-sm"
-                  )}
-                >
-                  Account settings
-                </a>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
-                <a
-                  href="#"
-                  className={classNames(
-                    active
-                      ? "bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100"
-                      : "text-gray-700 dark:text-gray-300",
-                    "block px-4 py-2 text-sm"
-                  )}
-                >
-                  Support
-                </a>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
-                <a
-                  href="#"
-                  className={classNames(
-                    active
-                      ? "bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100"
-                      : "text-gray-700 dark:text-gray-300",
-                    "block px-4 py-2 text-sm"
-                  )}
-                >
-                  License
-                </a>
-              )}
-            </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    type="submit"
-                    className={classNames(
-                      active
-                        ? "bg-gray-100 text-red-600 dark:bg-neutral-700"
-                        : "text-red-600",
-                      "block w-full px-4 py-2 text-left text-sm"
-                    )}
-                    onClick={logout}
-                  >
-                    Se déconnecter
-                  </button>
-                )}
-              </Menu.Item> */}
           </div>
         </Menu.Items>
       </Transition>

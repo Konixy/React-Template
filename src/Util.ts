@@ -3,7 +3,19 @@ export const btn2 = "btn bg-gray-300 text-black dark:bg-white dark:text-gray-900
 export const code = "bg-neutral-300 dark:bg-neutral-900 p-1 rounded-lg text-black dark:text-neutral-300";
 
 export class IntervalTimer {
-    constructor(name, callback, interval, maxFires = null){
+    remaining: any;
+    state: Number;
+    name: string;
+    interval: number;
+    callback: Function;
+    maxFires: number | null;
+    pausedTime: number;
+    fires: number;
+    lastTimeFired: Date;
+    timerId: NodeJS.Timer | undefined;
+    lastPauseTime: Date;
+    resumeId: NodeJS.Timeout | undefined;
+    constructor(name: string, callback: Function, interval: number, maxFires = null){
       this.remaining = 0;
       this.state = 0; //  0 = idle, 1 = running, 2 = paused, 3= resumed
   
@@ -12,8 +24,11 @@ export class IntervalTimer {
       this.callback = callback;
       this.maxFires = maxFires;
       this.pausedTime = 0; //how long we've been paused for
-  
       this.fires = 0;
+      this.lastTimeFired = new Date();
+      this.timerId = undefined;
+      this.lastPauseTime = new Date();
+      this.resumeId = undefined;
     }
   
     proxyCallback(){
@@ -36,22 +51,25 @@ export class IntervalTimer {
     pause(){
       if (this.state != 1 && this.state != 3) return;
   
-      this.remaining = this.interval - (new Date() - this.lastTimeFired) + this.pausedTime;
+      this.remaining = this.interval - (new Date().getTime() - this.lastTimeFired.getTime()) + this.pausedTime;
       this.lastPauseTime = new Date();
       clearInterval(this.timerId);
-      clearTimeout(this.resumeId);
+      // clearTimeout(this.resumeId);
       this.state = 2;
     }
+    // resumeId(resumeId: number) {
+    //   throw new Error("Method not implemented.");
+    // }
   
     resume(){
       if (this.state != 2) return;
   
-      this.pausedTime += new Date() - this.lastPauseTime;
+      this.pausedTime += new Date().getTime() - this.lastPauseTime.getTime();
       this.state = 3;
       this.resumeId = setTimeout(() => this.timeoutCallback(), this.remaining);
     }
 
-    setPausedTime(nbr) {
+    setPausedTime(nbr: number) {
       if(this.state === 1) {
         this.stop()
         this.pausedTime = nbr
@@ -78,7 +96,7 @@ export class IntervalTimer {
     }
   
     //set a new interval to use on the next interval loop
-    setInterval(newInterval){
+    setInterval(newInterval: number){
   
       //if we're running do a little switch-er-oo
       if(this.state == 1){
@@ -92,7 +110,7 @@ export class IntervalTimer {
       }
     }
   
-    setMaxFires(newMax){
+    setMaxFires(newMax: number){
       if(newMax != null && this.fires >= newMax){
         this.stop();
       }

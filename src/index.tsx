@@ -10,7 +10,7 @@ import Player from "./Player";
 import Header from "./Header";
 import Home from "./Home"
 import NotFound from "./NotFound";
-import {CookiesProvider} from "react-cookie"
+import GetStarted from "./GetStarted";
 
 class App extends React.Component {
   render() {
@@ -19,8 +19,9 @@ class App extends React.Component {
         <header><Header /></header>
         <main>
           <Routes>
-            <Route exact path="/" element={<Home />} />
-            <Route exact path="/app" element={<Player />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/get-started" element={<GetStarted />} />
+            <Route path="/app" element={<Player />} />
             <Route path="*" element={<NotFound/>}/>
           </Routes>
         </main>
@@ -29,5 +30,6 @@ class App extends React.Component {
   }
 }
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const rootElement = document.getElementById("root") as HTMLElement;
+const root = ReactDOM.createRoot(rootElement);
 root.render(<App />);
