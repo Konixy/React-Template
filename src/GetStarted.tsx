@@ -1,52 +1,31 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import React, { Component, useState, useEffect } from "react";
 import config from "./config";
-import { APIUser, APIConnection, GuildFeature } from "discord-api-types/v10";
-
-interface LoggingState {
-  connected: boolean;
-  loading: boolean;
-  botGuilds: DiscordGuild[] | null
-}
-
-interface DiscordGuild {
-  id: string;
-  icon: string;
-  name: string;
-  owner: boolean;
-  permissions: number;
-  permissions_new: string;
-  features: GuildFeature[];
-}
-
-interface DiscordUser extends APIUser {
-  connections?: APIConnection[];
-  guilds: DiscordGuild[];
-}
+import { User, Guild, LoggingState, Response } from "./types/Types";
 
 export default function getStarted() {
   const [state, setState] = useState<LoggingState>({
     loading: true,
     connected: false,
-    botGuilds: null
   });
-  const [user, setUser] = useState<DiscordUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   function init() {
-    axios.get(`${config.backendPath}/api/info?withGuilds=true`).then((r: AxiosResponse) => {
-      setState({
-        connected: r.data.success,
-        loading: false,
-        botGuilds: null
+    axios
+      .get(`${config.backendPath}/api/info?withGuilds=true`)
+      .then((r: Response) => {
+        setState({
+          connected: r.data.success,
+          loading: false,
+        });
+        setUser(r.data.user ? r.data.user : null);
+        console.log(r.data);
       });
-      setUser(r.data.user ? r.data.user : null);
-      console.log(r.data);
-    });
   }
-  function sortCurrentGuilds(guilds: DiscordGuild[]): DiscordGuild[] {
+  function sortCurrentGuilds(guilds: Guild[]): Guild[] {
     return guilds;
   }
-  function sortCanBeAddedGuild(guilds: DiscordGuild[]): DiscordGuild[] {
-    let sortedGuilds: DiscordGuild[] = [];
+  function sortCanBeAddedGuild(guilds: Guild[]): Guild[] {
+    let sortedGuilds: Guild[] = [];
     guilds.map((e) =>
       e.permissions
         ? (e.permissions & 0x20) == 0x20 // 0x20 = 'MANAGE_GUILD'
@@ -66,9 +45,11 @@ export default function getStarted() {
         "Chargement..."
       ) : user ? (
         <div className="flex flex-col">
-          {state.botGuilds ? sortCurrentGuilds(state.botGuilds).map((e) => (
-            <div key={e.id}>The bot is in {e.name}</div>
-          )) : null}
+          {state.botGuilds
+            ? sortCurrentGuilds(state.botGuilds).map((e) => (
+                <div key={e.id}>The bot is in {e.name}</div>
+              ))
+            : null}
           {sortCanBeAddedGuild(user.guilds).map((e) => (
             <div key={e.id}>The bot is'nt in {e.name}</div>
           ))}

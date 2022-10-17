@@ -2,32 +2,41 @@ import React, { Component, useState, useEffect, Fragment } from "react";
 import axios from "axios";
 import config from "./config";
 import { TailSpin } from "react-loader-spinner";
-import { Link } from "react-router-dom";
+import { Link, LinkProps } from "react-router-dom";
 import { Menu, Transition } from "@headlessui/react";
-import { useCookies } from "react-cookie";
 axios.defaults.withCredentials = true;
-// import Dropdown from './Dropdown'
+import { User, Guild, LoggingState, Response } from "./types/Types";
 
-function classNames(...classes) {
+function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function LoggedBtn() {
-  const [user, setUser] = useState({ type: "loader"})
-  const [cookie, setCookie] = useCookies([]);
+export default function LoggedBtn(): JSX.Element {
+  const [state, setState] = useState<LoggingState>({
+    loading: true,
+    connected: false,
+  });
+  const [user, setUser] = useState<User | null>(null);
   // const {data, error} = useSWR(`${config.backendPath}/api/info`)
 
   async function getInfo() {
     const request = axios
       .get(`${config.backendPath}/api/info`)
-      .then((r) => {
-        r.data.success ? setUser(r.data.user) : setUser(null);
+      .then((r: Response) => {
+        if (r.data.success) {
+          r.data.user ? setUser(r.data.user) : setUser(null);
+          r.data.user
+            ? setState({ connected: true, loading: false })
+            : setState({ connected: false, loading: false });
+        } else {
+          setState({ connected: false, loading: false });
+        }
       })
       .catch((err) => console.log(err));
   }
 
   function login() {
-    setUser({ type: "loader" });
+    setState({ loading: true, connected: false });
     const width = window.innerWidth * 0.35;
     const height = window.innerHeight * 0.9;
     const loginWindow = window.open(
@@ -43,21 +52,24 @@ export default function LoggedBtn() {
         (window.innerWidth - width) / 2
     );
     const timer = setInterval(() => {
-      if (loginWindow.closed) {
-        getInfo();
-        clearInterval(timer);
+      if (loginWindow) {
+        if (loginWindow.closed) {
+          getInfo();
+          clearInterval(timer);
+        }
       }
     }, 1000);
   }
 
   function logout() {
     axios.post(`${config.backendPath}/api/logout`);
+    setState({ connected: false, loading: false });
     return setUser(null);
   }
 
   function displayDrop() {
-    const style = document.querySelector(".dropdown").style;
-    style.display = style.display === "none" ? "block" : "none";
+    const element = document.querySelector(".dropdown") as HTMLElement;
+    element.style.display = element.style.display === "none" ? "block" : "none";
   }
 
   useEffect(() => {
@@ -67,7 +79,7 @@ export default function LoggedBtn() {
   return (
     <>
       {user ? (
-        user.type === "loader" ? (
+        state.loading  ? (
           <button
             className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0"
             style={{ width: "75px", height: "32px", justifyContent: "center" }}
@@ -75,7 +87,7 @@ export default function LoggedBtn() {
             <TailSpin color="black" width="20px" height="20px" />
           </button>
         ) : (
-          <div className="drop-container">{Dropdown([user, setUser])}</div>
+          <div className="drop-container">{Dropdown([user, setUser], [state, setState])}</div>
         )
       ) : (
         <button
@@ -91,12 +103,29 @@ export default function LoggedBtn() {
   );
 }
 
-function Dropdown([user, setUser]) {
+function Dropdown(
+  [user, setUser]: [
+    User,
+    React.Dispatch<React.SetStateAction<User | null>>
+  ],
+  [state, setState]: [
+    LoggingState,
+    React.Dispatch<React.SetStateAction<LoggingState>>
+  ]
+): JSX.Element {
   function logout() {
     axios.post(`${config.backendPath}/api/logout`);
+    setState({ connected: false, loading: false });
     return setUser(null);
   }
-  const dropdownItems = [
+
+  interface DropdownItem extends React.HTMLProps<HTMLButtonElement | HTMLLinkElement | LinkProps> {
+    type: "link" | "href" | "button",
+    name: string,
+    href?: string,
+  }
+
+  const dropdownItems: DropdownItem[] = [
     { type: "link", name: "Account settings", href: "/settings" },
     { type: "href", name: "Support", href: config.discordInvite },
     {
@@ -144,22 +173,22 @@ function Dropdown([user, setUser]) {
         <Menu.Items className="absolute text-center right-0 z-10 mt-2 w-44 origin-top-right rounded-md bg-white dark:bg-neutral-800 shadow-lg ring-1 ring-black dark:ring-neutral-600 ring-opacity-5 focus:outline-none">
           <div className="py-1">
             {dropdownItems.map((e) =>
-              e.type === "link" ? (
+              e.type === "link" && e.href ? (
                 <Menu.Item key={e.name}>
                   {({ active }) => (
                     <Link
-                      to={e.href}
+                      to={e.href || "/"}
                       className={classNames(
                         active ? baseStyle.active : baseStyle.notActive,
                         baseStyle.base,
-                        e.className ? e.className : ""
+                        e.className || ""
                       )}
                     >
                       {e.name}
                     </Link>
                   )}
                 </Menu.Item>
-              ) : e.type === "href" ? (
+              ) : e.type === "href" && e.href ? (
                 <Menu.Item key={e.name}>
                   {({ active }) => (
                     <a
@@ -168,7 +197,7 @@ function Dropdown([user, setUser]) {
                       className={classNames(
                         active ? baseStyle.active : baseStyle.notActive,
                         baseStyle.base,
-                        e.className
+                        e.className || ""
                       )}
                     >
                       {e.name}
@@ -183,7 +212,7 @@ function Dropdown([user, setUser]) {
                       className={classNames(
                         active ? baseStyle.active : baseStyle.notActive,
                         baseStyle.base,
-                        e.className
+                        e.className || ""
                       )}
                     >
                       {e.name}
