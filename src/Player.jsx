@@ -7,7 +7,7 @@ import WebSocketPlayer from "./WebSocketPlayer";
 import config from "./config";
 // import SpotifyWebApi from "spotify-web-api-node";
 import axios from "axios";
-import { code } from './Util';
+import { codeStyle } from './Util';
 // const Spotify = new SpotifyWebApi({
 //   clientId: config.spotifyClientId,
 //   clientSecret: config.spotifyClientSecret,
@@ -53,7 +53,7 @@ export default class Player extends Component {
         this.state.track.albumName = <>Veuillez verifier votre connexion internet</>
       } else {
         this.state.track.name = "Aucune musique en cours"
-        this.state.track.albumName = <>Tapez <code className={code}>/play</code> pour commencer a écouter</>
+        this.state.track.albumName = <>Tapez <code className={codeStyle}>/play</code> pour commencer a écouter</>
       }
       this.state.playing = false;
       this.state.paused = true;
@@ -101,7 +101,7 @@ export default class Player extends Component {
       }
     } else {
       this.state.track.name = "Aucune musique en cours"
-      this.state.track.albumName = <>Tapez <code className={code}>/play</code> pour commencer a écouter</>
+      this.state.track.albumName = <>Tapez <code className={codeStyle}>/play</code> pour commencer a écouter</>
       this.state.playing = false;
     }
     this.state.paused = data.paused

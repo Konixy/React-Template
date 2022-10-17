@@ -37,19 +37,14 @@ export default function LoggedBtn(): JSX.Element {
 
   function login() {
     setState({ loading: true, connected: false });
-    const width = (window.innerWidth * 0.35) > 200 ? 300 : window.innerWidth * 0.35;
-    const height = window.innerHeight * 0.9;
+    console.log(window.innerWidth);
+    const width = 450;
+    const left = (window.innerWidth - width) / 2;
+    console.log(left)
     const loginWindow = window.open(
       `${config.backendPath}/api/login`,
       "newwindow",
-      "width=" +
-        width +
-        ", height=" +
-        height +
-        ", top=" +
-        (window.innerHeight - height) +
-        ", left=" +
-        (window.innerWidth - width) / 2
+      `width=${width}, height=${window.innerHeight}, top=${window.innerHeight}, left=${left}`
     );
     const timer = setInterval(() => {
       if (loginWindow) {
@@ -58,7 +53,7 @@ export default function LoggedBtn(): JSX.Element {
           clearInterval(timer);
         }
       }
-    }, 1000);
+    }, 500);
   }
 
   function logout() {
@@ -78,17 +73,17 @@ export default function LoggedBtn(): JSX.Element {
 
   return (
     <>
-      {user ? (
-        state.loading  ? (
-          <button
-            className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0"
-            style={{ width: "75px", height: "32px", justifyContent: "center" }}
-          >
-            <TailSpin color="black" width="20px" height="20px" />
-          </button>
-        ) : (
-          <div className="drop-container">{Dropdown([user, setUser], [state, setState])}</div>
-        )
+      {state.loading ? (
+        <button
+          className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0"
+          style={{ width: "75px", height: "32px", justifyContent: "center" }}
+        >
+          <TailSpin color="black" width="20px" height="20px" />
+        </button>
+      ) : user ? (
+        <div className="drop-container">
+          {Dropdown([user, setUser], [state, setState])}
+        </div>
       ) : (
         <button
           onClick={login}
@@ -104,10 +99,7 @@ export default function LoggedBtn(): JSX.Element {
 }
 
 function Dropdown(
-  [user, setUser]: [
-    User,
-    React.Dispatch<React.SetStateAction<User | null>>
-  ],
+  [user, setUser]: [User, React.Dispatch<React.SetStateAction<User | null>>],
   [state, setState]: [
     LoggingState,
     React.Dispatch<React.SetStateAction<LoggingState>>
@@ -119,10 +111,13 @@ function Dropdown(
     return setUser(null);
   }
 
-  interface DropdownItem extends React.HTMLProps<HTMLButtonElement | HTMLLinkElement | LinkProps> {
-    type: "link" | "href" | "button",
-    name: string,
-    href?: string,
+  interface DropdownItem
+    extends React.HTMLProps<
+      HTMLButtonElement | HTMLLinkElement | LinkProps | HTMLDivElement
+    > {
+    type: "link" | "href" | "button";
+    name: string;
+    href?: string;
   }
 
   const dropdownItems: DropdownItem[] = [
@@ -139,7 +134,7 @@ function Dropdown(
   const baseStyle = {
     active: "bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100",
     notActive: "text-gray-700 dark:text-gray-300",
-    base: "block px-4 py-2 mx-2 my-1 text-sm rounded-md",
+    base: "block px-4 py-2 mx-2 my-1 text-sm cursor-pointer rounded-md",
   };
 
   return (
@@ -205,18 +200,18 @@ function Dropdown(
                   )}
                 </Menu.Item>
               ) : (
-                <Menu.Item key={e.name} as="div" className={baseStyle.base}>
+                <Menu.Item key={e.name}>
                   {({ active }) => (
-                    <button
-                      onClick={e.onClick}
+                    <div
                       className={classNames(
                         active ? baseStyle.active : baseStyle.notActive,
                         baseStyle.base,
                         e.className || ""
                       )}
+                      onClick={e.onClick}
                     >
                       {e.name}
-                    </button>
+                    </div>
                   )}
                 </Menu.Item>
               )
