@@ -37,7 +37,7 @@ export default function LoggedBtn(): JSX.Element {
 
   function login() {
     setState({ loading: true, connected: false });
-    const width = window.innerWidth * 0.35;
+    const width = (window.innerWidth * 0.35) > 200 ? 300 : window.innerWidth * 0.35;
     const height = window.innerHeight * 0.9;
     const loginWindow = window.open(
       `${config.backendPath}/api/login`,
