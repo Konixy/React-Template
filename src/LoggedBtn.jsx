@@ -192,7 +192,7 @@ function Dropdown([user, setUser]) {
                   )}
                 </Menu.Item>
               ) : (
-                <Menu.Item key={e.name}>
+                <Menu.Item key={e.name} as="div" className={baseStyle.base}>
                   {({ active }) => (
                     <button
                       onClick={e.onClick}
