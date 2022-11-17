@@ -38,20 +38,14 @@ export default function LoggedBtn(): JSX.Element {
 
   function login() {
     setState({ loading: true, connected: false });
-    const width =
-      window.innerWidth * 0.35 > 200 ? 300 : window.innerWidth * 0.35;
-    const height = window.innerHeight * 0.9;
+    console.log(window.innerWidth);
+    const width = 450;
+    const left = (window.innerWidth - width) / 2;
+    console.log(left)
     const loginWindow = window.open(
       `${config.backendPath}/api/login`,
       "newwindow",
-      "width=" +
-        width +
-        ", height=" +
-        height +
-        ", top=" +
-        (window.innerHeight - height) +
-        ", left=" +
-        (window.innerWidth - width) / 2
+      `width=${width}, height=${window.innerHeight}, top=${window.innerHeight}, left=${left}`
     );
     const timer = setInterval(() => {
       if (loginWindow) {
@@ -60,7 +54,7 @@ export default function LoggedBtn(): JSX.Element {
           clearInterval(timer);
         }
       }
-    }, 1000);
+    }, 500);
   }
 
   function logout() {
@@ -137,7 +131,7 @@ function Dropdown([state, setState]: [
   const baseStyle = {
     active: "bg-gray-100 text-gray-900 dark:bg-neutral-700 dark:text-gray-100",
     notActive: "text-gray-700 dark:text-gray-300",
-    base: "block px-4 py-2 mx-2 my-1 text-sm rounded-md",
+    base: "block px-4 py-2 mx-2 my-1 text-sm cursor-pointer rounded-md",
   };
 
   return (
@@ -203,18 +197,18 @@ function Dropdown([state, setState]: [
                   )}
                 </Menu.Item>
               ) : (
-                <Menu.Item key={e.name} as="div" className={baseStyle.base}>
+                <Menu.Item key={e.name}>
                   {({ active }) => (
-                    <button
-                      onClick={e.onClick}
+                    <div
                       className={classNames(
                         active ? baseStyle.active : baseStyle.notActive,
                         baseStyle.base,
                         e.className || ""
                       )}
+                      onClick={e.onClick}
                     >
                       {e.name}
-                    </button>
+                    </div>
                   )}
                 </Menu.Item>
               )

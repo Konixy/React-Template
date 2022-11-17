@@ -1,6 +1,6 @@
 export const btn = "btn bg-black text-white dark:bg-green-400 dark:text-gray-900 dark:hover:bg-green-400/75 hover:bg-black/75"
 export const btn2 = "btn bg-gray-300 text-black dark:bg-white dark:text-gray-900 dark:hover:bg-white/75 hover:bg-gray-500/50"
-export const code = "bg-neutral-300 dark:bg-neutral-900 p-1 rounded-lg text-black dark:text-neutral-300 font-mono";
+export const codeStyle = "bg-neutral-300 dark:bg-neutral-900 p-1 rounded-lg text-black dark:text-neutral-300 font-mono";
 
 export class IntervalTimer {
     remaining: any;
