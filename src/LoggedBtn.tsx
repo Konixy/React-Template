@@ -111,7 +111,7 @@ function Dropdown([state, setState]: [
   }
 
   interface DropdownItem
-    extends React.HTMLProps<HTMLButtonElement | HTMLLinkElement | LinkProps> {
+    extends React.HTMLProps<HTMLDivElement | HTMLButtonElement | HTMLLinkElement | LinkProps> {
     type: "link" | "href" | "button";
     name: string;
     href?: string;
