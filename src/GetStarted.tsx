@@ -1,18 +1,19 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import React, { Component, useState, useEffect } from "react";
 import config from "./config";
-import { User, Guild, LoggingState, Response } from "./types/Types";
+import { User, Guild, LoggingState, APIResponse } from "./types/Types";
+import { useUser } from "./User.context";
 
 export default function getStarted() {
   const [state, setState] = useState<LoggingState>({
     loading: true,
     connected: false,
   });
-  const [user, setUser] = useState<User | null>(null);
+  const {user, setUser} = useUser();
   function init() {
     axios
       .get(`${config.backendPath}/api/info?withGuilds=true`)
-      .then((r: Response) => {
+      .then((r: AxiosResponse<APIResponse>) => {
         setState({
           connected: r.data.success,
           loading: false,
@@ -33,7 +34,7 @@ export default function getStarted() {
           : null
         : null
     );
-    // renvouyer juste les guild ou le bot est présent
+    // TODO: renvoyer juste les guild ou le bot est présent
     return sortedGuilds;
   }
   useEffect(() => {

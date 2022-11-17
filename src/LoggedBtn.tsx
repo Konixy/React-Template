@@ -4,8 +4,10 @@ import config from "./config";
 import { TailSpin } from "react-loader-spinner";
 import { Link, LinkProps } from "react-router-dom";
 import { Menu, Transition } from "@headlessui/react";
+import { User, Guild, LoggingState, APIResponse } from "./types/Types";
+import { AxiosResponse } from "axios";
+import { useUser } from "./User.context";
 axios.defaults.withCredentials = true;
-import { User, Guild, LoggingState, Response } from "./types/Types";
 
 function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(" ");
@@ -16,13 +18,12 @@ export default function LoggedBtn(): JSX.Element {
     loading: true,
     connected: false,
   });
-  const [user, setUser] = useState<User | null>(null);
-  // const {data, error} = useSWR(`${config.backendPath}/api/info`)
+  const { user, setUser } = useUser();
 
   async function getInfo() {
     const request = axios
       .get(`${config.backendPath}/api/info`)
-      .then((r: Response) => {
+      .then((r: AxiosResponse<APIResponse>) => {
         if (r.data.success) {
           r.data.user ? setUser(r.data.user) : setUser(null);
           r.data.user
@@ -37,7 +38,8 @@ export default function LoggedBtn(): JSX.Element {
 
   function login() {
     setState({ loading: true, connected: false });
-    const width = (window.innerWidth * 0.35) > 200 ? 300 : window.innerWidth * 0.35;
+    const width =
+      window.innerWidth * 0.35 > 200 ? 300 : window.innerWidth * 0.35;
     const height = window.innerHeight * 0.9;
     const loginWindow = window.open(
       `${config.backendPath}/api/login`,
@@ -79,7 +81,7 @@ export default function LoggedBtn(): JSX.Element {
   return (
     <>
       {user ? (
-        state.loading  ? (
+        state.loading ? (
           <button
             className="flex items-center bg-gray-100 border-0 py-1 px-3 text-black focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0"
             style={{ width: "75px", height: "32px", justifyContent: "center" }}
@@ -87,7 +89,7 @@ export default function LoggedBtn(): JSX.Element {
             <TailSpin color="black" width="20px" height="20px" />
           </button>
         ) : (
-          <div className="drop-container">{Dropdown([user, setUser], [state, setState])}</div>
+          <div className="drop-container">{Dropdown([state, setState])}</div>
         )
       ) : (
         <button
@@ -103,26 +105,22 @@ export default function LoggedBtn(): JSX.Element {
   );
 }
 
-function Dropdown(
-  [user, setUser]: [
-    User,
-    React.Dispatch<React.SetStateAction<User | null>>
-  ],
-  [state, setState]: [
-    LoggingState,
-    React.Dispatch<React.SetStateAction<LoggingState>>
-  ]
-): JSX.Element {
+function Dropdown([state, setState]: [
+  LoggingState,
+  React.Dispatch<React.SetStateAction<LoggingState>>
+]): JSX.Element {
+  const { user, setUser } = useUser();
   function logout() {
     axios.post(`${config.backendPath}/api/logout`);
     setState({ connected: false, loading: false });
     return setUser(null);
   }
 
-  interface DropdownItem extends React.HTMLProps<HTMLButtonElement | HTMLLinkElement | LinkProps> {
-    type: "link" | "href" | "button",
-    name: string,
-    href?: string,
+  interface DropdownItem
+    extends React.HTMLProps<HTMLButtonElement | HTMLLinkElement | LinkProps> {
+    type: "link" | "href" | "button";
+    name: string;
+    href?: string;
   }
 
   const dropdownItems: DropdownItem[] = [
@@ -147,13 +145,13 @@ function Dropdown(
       <div>
         <Menu.Button className="inline-flex w-full justify-center items-center rounded-md dark:text-neutral-300 dark:hover:text-white text-neutral-500 hover:text-neutral-800 px-4 py-2 text-base font-medium focus:outline-none">
           <img
-            src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`}
-            alt={user.username}
+            src={`https://cdn.discordapp.com/avatars/${user?.id}/${user?.avatar}.png?size=64`}
+            alt={user?.username}
             width="32px"
             height="32px"
             className="rounded-full mr-2"
           />
-          <div className="text-base">{user.username}</div>
+          <div className="text-base">{user?.username}</div>
           <i
             className="fa-solid fa-caret-down -mr-2 ml-1 -translate-y-[0.75px] flex h-5 w-5 drop-icon text-lg"
             aria-hidden="true"

@@ -5,17 +5,42 @@ import { Oval } from "react-loader-spinner";
 import jQuery from "jquery";
 import WebSocketPlayer from "./WebSocketPlayer";
 import config from "./config";
-// import SpotifyWebApi from "spotify-web-api-node";
+import SpotifyWebApi from "spotify-web-api-node";
 import axios from "axios";
-import { code } from './Util';
-// const Spotify = new SpotifyWebApi({
-//   clientId: config.spotifyClientId,
-//   clientSecret: config.spotifyClientSecret,
-//   accessToken: config.spotifyToken,
-// });
+import { code } from "./Util";
+import { useUser } from "./User.context";
+import { WSResponse } from "./types/Types";
+import { SimplifiedArtistObject } from "spotify-api-types";
+
+const Spotify = new SpotifyWebApi({
+  clientId: config.spotifyClientId,
+  clientSecret: config.spotifyClientSecret,
+  accessToken: config.spotifyToken,
+});
+
+interface State {
+  value: number;
+  duration: number;
+  paused: boolean;
+  playing: boolean;
+  serverId: string;
+  ws: WebSocketPlayer | null;
+  track: {
+    name: string;
+    albumName: string | JSX.Element;
+    artists: SimplifiedArtistObject[];
+    coverUrl: string | null;
+    url: string | null;
+    id: string | null;
+    fetchId: string | null;
+  };
+}
 
 export default class Player extends Component {
-  constructor(props) {
+  interval: IntervalTimer | undefined;
+  ws: any;
+  state: State;
+  constructor(props: {} | Readonly<{}>) {
     super(props);
     this.state = {
       value: 0, // this.props.seek
@@ -46,65 +71,74 @@ export default class Player extends Component {
     );
     this.interval.start();
   };
-  updateInfo = async (data) => {
+  updateInfo = async (data: WSResponse) => {
     if (!data.success) {
-      if(data.conectionError) {
-        this.state.track.name = "Connexion perdu"
-        this.state.track.albumName = <>Veuillez verifier votre connexion internet</>
+      if (data.conectionError) {
+        this.state.track.name = "Connexion perdu";
+        this.state.track.albumName = (
+          <>Veuillez verifier votre connexion internet</>
+        );
       } else {
-        this.state.track.name = "Aucune musique en cours"
-        this.state.track.albumName = <>Tapez <code className={code}>/play</code> pour commencer a écouter</>
+        this.state.track.name = "Aucune musique en cours";
+        this.state.track.albumName = (
+          <>
+            Tapez <code className={code}>/play</code> pour commencer a écouter
+          </>
+        );
       }
       this.state.playing = false;
       this.state.paused = true;
       return this.setState(this.state);
     }
-    if (data.currentTrack.duration)
+    if (data.currentTrack?.duration)
       this.state.duration = Math.floor(data.currentTrack.duration);
     else this.state.duration = 0;
-    if(data.seek) {
-      const splited = `${data.seek}`.split('')
-      const nbr = Number(splited.splice(splited.length-3).join(''))
-      this.state.value = data.seek
-      if(!this.state.paused) {
-        this.interval.stop()
+    if (data.seek) {
+      const splited = `${data.seek}`.split("");
+      const nbr = Number(splited.splice(splited.length - 3).join(""));
+      this.state.value = data.seek;
+      if (!this.state.paused) {
+        this.interval?.stop();
         setTimeout(() => {
-          this.interval.start()
-        }, nbr)
+          this.interval?.start();
+        }, nbr);
       }
-    }
-    else this.state.value = 0;
-    if (data.currentTrack.id) {
-      this.state.track.id = data.currentTrack.id
+    } else this.state.value = 0;
+    if (data.currentTrack?.id) {
+      this.state.track.id = data.currentTrack.id;
       this.state.track.url = data.currentTrack.url;
-      this.state.track.name = data.currentTrack.name
+      this.state.track.name = data.currentTrack.name;
       this.state.playing = true;
       if (!data.paused) {
-        this.interval.pause();
+        this.interval?.pause();
       } else if (data.paused) {
-        this.interval.resume();
+        this.interval?.resume();
       }
       // console.log(data.currentTrack.id)
-      if(this.state.track.fetchId !== this.state.track.id) {
+      if (this.state.track.fetchId !== this.state.track.id) {
         Spotify.getTrack(data.currentTrack.id)
           .then((r) => {
-            this.state.track.fetchId = r.body.id
+            this.state.track.fetchId = r.body.id;
             this.state.track.albumName = r.body.album.name;
             this.state.track.artists = r.body.artists || [];
-            this.state.track.coverUrl = r.body.album.images.filter(
-              (e) => e.width >= 300 && e.width <= 400
+            this.state.track.coverUrl = r.body.album.images.filter((e) =>
+              e.width ? e.width >= 300 && e.width <= 400 : null
             )[0].url;
           })
-          .catch((err) => {
+          .catch((err: any) => {
             console.log(err);
           });
       }
     } else {
-      this.state.track.name = "Aucune musique en cours"
-      this.state.track.albumName = <>Tapez <code className={code}>/play</code> pour commencer a écouter</>
+      this.state.track.name = "Aucune musique en cours";
+      this.state.track.albumName = (
+        <>
+          Tapez <code className={code}>/play</code> pour commencer a écouter
+        </>
+      );
       this.state.playing = false;
     }
-    this.state.paused = data.paused
+    this.state.paused = data.paused ? data.paused : true;
     this.setState(this.state);
   };
   componentDidMount() {
@@ -112,38 +146,47 @@ export default class Player extends Component {
     this.setUpWs();
   }
   componentWillUnmount() {
-    this.ws?.destroy()
+    this.ws?.destroy();
   }
   setUpWs = () => {
-    this.ws = new WebSocketPlayer(this.state.serverId, (msg) => {
-      const data = JSON.parse(msg.data);
-      this.updateInfo(data);
-    }, (err) => {
-      this.updateInfo({success: false, conectionError: true});
-      setTimeout(() => {
-        this.setUpWs();
-      }, 2500);
-    });
+    this.ws = new WebSocketPlayer(
+      this.state.serverId,
+      (msg) => {
+        const data = JSON.parse(msg.data);
+        this.updateInfo(data);
+      },
+      (err) => {
+        this.updateInfo({ success: false, conectionError: true });
+        setTimeout(() => {
+          this.setUpWs();
+        }, 2500);
+      }
+    );
     this.ws.init();
   };
   pause = () => {
-    if (!this.state.playing || document.querySelector(".pauseBtn").disabled) return;
+    const pauseBtn = document.querySelector(".pauseBtn") as HTMLButtonElement;
+    if (!this.state.playing || pauseBtn?.disabled) return;
     this.ws.send({ event: "pause" });
   };
   previous = () => {
-    if (!this.state.playing || document.querySelector(".pauseBtn").disabled) return;
-    console.log('previous btn clicked')
+    const pauseBtn = document.querySelector(".pauseBtn") as HTMLButtonElement;
+    if (!this.state.playing || pauseBtn?.disabled) return;
+    console.log("previous btn clicked");
     this.ws.send({ event: "previous" });
-  }
+  };
   setLoading = () => {
     this.state.value = 0;
     this.state.paused = true;
-    this.interval.pause();
-    document.querySelector(".pauseBtn").disabled = true;
-    document.querySelector("#progressBar").disabled = true;
-    this.setState(this.state)
+    this.interval?.pause();
+    (document.querySelector(".pauseBtn") as HTMLButtonElement).disabled = true;
+    (document.querySelector(
+      "#progressBar"
+    ) as HTMLButtonElement).disabled = true;
+    this.setState(this.state);
   };
   render() {
+    const { user } = useUser();
     if (!this.state.paused) {
       this.interval ? this.interval.resume() : "";
     } else if (this.state.paused) {
@@ -154,14 +197,21 @@ export default class Player extends Component {
       <div>
         <div className="bg-white border-neutral-100 dark:bg-neutral-800 dark:border-neutral-500 border-b rounded-t-xl p-4 pb-6 sm:p-10 sm:pb-8 lg:p-6 xl:p-10 xl:pb-8 space-y-6 sm:space-y-8 lg:space-y-6 xl:space-y-8">
           <div className="flex items-center space-x-4">
-              <img
-                src={this.state.track.coverUrl ? this.state.track.coverUrl : "https://f4.bcbits.com/img/a4139357031_10.jpg"}
-                alt=""
-                width={88}
-                height={88}
-                className={["flex-none rounded-lg", this.state.track.coverUrl ? "bg-transparent" : "bg-neutral-100"].join(' ')}
-                loading="lazy"
-              />
+            <img
+              src={
+                this.state.track.coverUrl
+                  ? this.state.track.coverUrl
+                  : "https://f4.bcbits.com/img/a4139357031_10.jpg"
+              }
+              alt=""
+              width={88}
+              height={88}
+              className={[
+                "flex-none rounded-lg",
+                this.state.track.coverUrl ? "bg-transparent" : "bg-neutral-100",
+              ].join(" ")}
+              loading="lazy"
+            />
             <div className="min-w-0 flex-auto space-y-1 font-semibold">
               <p className="text-black dark:text-white text-sm leading-6">
                 {this.state.track.artists?.map((e) => (
@@ -196,7 +246,7 @@ export default class Player extends Component {
           <div className="space-y-2">
             <div className="relative">
               <div className="rounded-full overflow-hidden">
-                <ProgressBar state={this.state} />
+                <ProgressBar originalState={this.state} />
               </div>
             </div>
             <div className="flex justify-between text-sm leading-6 font-medium tabular-nums">
@@ -258,61 +308,63 @@ export default class Player extends Component {
   }
 }
 
-class ProgressBar extends Component {
-  constructor(props) {
-    super(props);
-    this.state = props.state
-  }
-  componentDidMount() {
-    this.updateProgressBar();
-  }
-  handleChange = (event) => {
-    if (!this.props.state.playing || document.querySelector(".pauseBtn").disabled)
+function ProgressBar({ originalState }: { originalState: State }) {
+  const [state, setState] = useState(originalState);
+  useEffect(() => {
+    updateProgressBar();
+  }, []);
+  function handleChange(event: { target: { value: any } }) {
+    if (
+      !state.playing ||
+      (document.querySelector(".pauseBtn") as HTMLButtonElement).disabled
+    )
       return;
-    this.state.value = Number(event.target.value)
-    this.setState(this.state);
-  };
-  getProgressBarStyle = () => {
-    const progressBar = document.querySelector("#progressBar");
+    state.value = Number(event.target.value);
+    setState(state);
+  }
+  function getProgressBarStyle() {
+    const progressBar = document.querySelector(
+      "#progressBar"
+    ) as HTMLInputElement;
     if (progressBar) {
-      const max = progressBar.max,
-        val = progressBar.value;
+      const max = Number(progressBar.max);
+      const val = Number(progressBar.value);
       return {
-        backgroundSize: ((val * 100) / max)+0.3 + "% 100%",
+        backgroundSize: (val * 100) / max + 0.3 + "% 100%",
       };
     }
-  };
-  updateProgressBar = () => {
-    const progressBar = document.querySelector("#progressBar");
-    if (progressBar) {
-      const max = progressBar.max,
-        val = progressBar.value;
-      return jQuery("#progressBar").css({backgroundSize: (val * 100) / max + "% 100%"});
-    }
-  };
-  render() {
-    if (!this.props.state.playing) {
-      jQuery("#progressBar").css({ backgroundSize: "0% 100%" });
-    } else {
-      this.updateProgressBar();
-    }
-    return (
-      <input
-        name="seek"
-        id="progressBar"
-        type="range"
-        min="0"
-        max={this.props.state.duration}
-        value={this.props.state.value}
-        step="1"
-        onChange={this.handleChange}
-        style={
-          !this.props.state.playing
-            ? { backgroundSize: "0% 100%" }
-            : this.getProgressBarStyle()
-        }
-        className="w-full h-1.5 outline-none bg-neutral-200 rounded-lg appearance-none cursor-pointer dark:bg-neutral-700"
-      />
-    );
   }
+  function updateProgressBar() {
+    const progressBar = document.querySelector(
+      "#progressBar"
+    ) as HTMLInputElement;
+    if (progressBar) {
+      const max = Number(progressBar.max);
+      const val = Number(progressBar.value);
+      return jQuery("#progressBar").css({
+        backgroundSize: (val * 100) / max + "% 100%",
+      });
+    }
+  }
+  if (!state.playing) {
+    jQuery("#progressBar").css({ backgroundSize: "0% 100%" });
+  } else {
+    updateProgressBar();
+  }
+  return (
+    <input
+      name="seek"
+      id="progressBar"
+      type="range"
+      min="0"
+      max={state.duration}
+      value={state.value}
+      step="1"
+      onChange={handleChange}
+      style={
+        !state.playing ? { backgroundSize: "0% 100%" } : getProgressBarStyle()
+      }
+      className="w-full h-1.5 outline-none bg-neutral-200 rounded-lg appearance-none cursor-pointer dark:bg-neutral-700"
+    />
+  );
 }

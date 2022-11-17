@@ -1,14 +1,9 @@
 import { APIUser, APIConnection, GuildFeature } from "discord-api-types/v10";
-import { AxiosResponse } from "axios";
 
-export interface Response extends AxiosResponse {
-  data: DataResponse
-}
-
-export interface DataResponse {
-  success: boolean,
-  user?: User,
-  botGuilds?: Guild[]
+export interface APIResponse {
+  success: boolean;
+  user?: User;
+  botGuilds?: Guild[];
 }
 
 export interface LoggingState {
@@ -30,4 +25,19 @@ export interface Guild {
 export interface User extends APIUser {
   connections?: APIConnection[];
   guilds: Guild[];
+}
+
+export interface WSResponse {
+  success: boolean;
+  conectionError?: boolean;
+  currentTrack?: APITrack;
+  seek?: number;
+  paused?: boolean;
+}
+
+export interface APITrack {
+  name: string;
+  duration: number;
+  url: string;
+  id: string;
 }
