@@ -1,14 +1,20 @@
 {
-    "tailwindCSS.includeLanguages": {
-        "javascript": "javascript",
-        "javascriptreact": "javascriptreact",
-        "typescript": "typescript",
-        "typescriptreact": "typescriptreact",
-    },
-    "tailwindCSS.emmetCompletions": true,
-    "editor.inlineSuggest.enabled": true,
-    "editor.quickSuggestions": {
+  "tailwindCSS.includeLanguages": {
+    "javascript": "javascript",
+    "javascriptreact": "javascriptreact",
+    "typescript": "typescript",
+    "typescriptreact": "typescriptreact"
+  },
+  "tailwindCSS.emmetCompletions": true,
+  "editor.inlineSuggest.enabled": true,
+  "editor.quickSuggestions": {
     "strings": true
-    },
-    "css.validate": false,
+  },
+  "css.validate": false,
+  "search.exclude": {
+    "**/.yarn": true,
+    "**/.pnp.*": true
+  },
+  "typescript.tsdk": ".yarn/sdks/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }
