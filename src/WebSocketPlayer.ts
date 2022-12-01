@@ -1,7 +1,7 @@
 import config from './config'
 
 interface WebSocketMessage {
-    serverId: string;
+    serverId?: string;
     event: string;
 }
 
