@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./index.scss";
+import "./styles/index.scss";
 import Player from "./Player";
 import Header from "./Header";
 import Home from "./Home";
